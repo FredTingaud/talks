@@ -8,13 +8,24 @@
       @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
-      body { font-family: 'Droid Serif'; }
+      body {
+         font-family: 'Droid Serif';
+         color: #ccc;
+      }
+      .remark-slide-content {
+         background: #272822;
+      }
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
         font-weight: normal;
         font-size: 500%;
+         color: #fff;
       }
-      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; font-size:100%; }
+      .remark-code, .remark-inline-code {
+         font-family: 'Ubuntu Mono';
+         font-size:100%;
+         background-color: #373832 !important;
+      }
       .remark-slide-content { font-size: 180%; }
       .remark-slide-content h1 { font-size: 250%; }
       .remark-slide-content h2 { font-size: 180%; }
@@ -24,17 +35,19 @@
         bottom: 80px;
         left: 50px;
         font-size: 100%;
-        color: #666666
+        color: #bbb
       }
       .footnote {
         position:absolute;
         bottom: 80px;
         font-size: 80%;
         right: 3em;
-        color: #666666
+        color: #bbb
       }
-      .move { color: rgb(249, 38, 114); font-size: 100%; }
-
+      .move {
+         color: rgb(249, 38, 114);
+         font-size: 100%;
+      }
     </style>
   </head>
   <body>
@@ -670,7 +683,11 @@ class: center, middle
     <script src="https://remarkjs.com/downloads/remark-latest.min.js">
     </script>
     <script>
-      var slideshow = remark.create();
+      var slideshow = remark.create({
+          highlightStyle: 'monokai',
+          highlightLanguage: 'C++',
+          highlightLines: true
+        });
     </script>
   </body>
 </html>
