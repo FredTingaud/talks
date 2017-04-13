@@ -146,7 +146,7 @@ An r-value will never be used again, we can salvage it!
       B* b_;
 
       A() : b_(new B()) {}
-      ~A() {delete b_;}
+      ~A() {if (b_) delete b_;}
 
       A(A const & other) : b_(new B(other.b_)) {}
       A(A&& other) : b_(other.b_) {
