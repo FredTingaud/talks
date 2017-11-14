@@ -117,7 +117,7 @@ But still a good tool for their purposes
 
 * Google Benchmark
 
-* Clang 3.8 (more to come soon)
+* Clang 3, 4 or 5; GCC 5, 6 or 7
 
 * AWS + Docker
 
@@ -128,7 +128,7 @@ But still a good tool for their purposes
 ```C++
 static void StringCopy(benchmark::State& state){
   std::string x = "hello";
-  while (state.KeepRunning())
+  for (auto _ : state)
     std::string copy(x);
 }
 BENCHMARK(StringCopy);
@@ -141,7 +141,7 @@ BENCHMARK(StringCopy);
 ```C++
 static void StringCopy(benchmark::State& state){
   std::string x(state.range(0), 'x');
-  while (state.KeepRunning())
+  for (auto _ : state)
     std::string copy(x);
 }
 BENCHMARK(StringCopy)->Arg(1)->Arg(64)->Arg(4096);
@@ -149,7 +149,7 @@ BENCHMARK(StringCopy)->Arg(1)->Arg(64)->Arg(4096);
 
 
 
-http://quick-bench.com/3dBBRE_48P6x9KzAc1Ou0wjkb3w
+http://quick-bench.com/KyGziZrzIauaGMgnmsYIUjt3pJQ
 
 ---
 
@@ -181,7 +181,7 @@ std::vector<int> getRandomVect();
 ```C++
 static void sorted(benchmark::State& state) {
   auto input = getRandomVect();
-  while (state.KeepRunning())
+  for (auto _ : state)
   {
     std::vector<int> values(input);
     std::sort(values.begin(), values.end());
@@ -197,7 +197,7 @@ BENCHMARK(sorted);
 ```C++
 static void unsorted(benchmark::State& state) {
   auto input = getRandomVect();
-  while (state.KeepRunning())
+  for (auto _ : state)
   {
     benchmark::DoNotOptimize(std::vector<int>(input));
   }
@@ -207,7 +207,7 @@ BENCHMARK(unsorted);
 
 ---
 
-http://quick-bench.com/7QSvcyregOwAOpp3MEFdnvYyt_0
+http://quick-bench.com/dHAYq-evPvfr3EsfHzbed6NhAQA
 
 .img-full-size[![Sort result](img/sorted-result.png)]
 
@@ -219,7 +219,7 @@ sort VS stable_sort
 
 ---
 
-http://quick-bench.com/dMAntsI0LNzurcC1qo8b9KcXlug
+http://quick-bench.com/x3cMfSz7fILoGuiL95W8v5rFNIM
 
 .img-full-size[![Stable sort result](img/stable-sorted-result.png)]
 
@@ -235,7 +235,7 @@ It does a partition around the given position.
 
 ---
 
-http://quick-bench.com/Sp7F2OELsI4X9bm9HEOH0IimWV4
+http://quick-bench.com/u90jE_wBvVDDK440iacCv1FZbhc
 
 .img-full-size[![Nth result](img/nth-element-result.png)]
 
@@ -249,9 +249,23 @@ Another way to get the mean is to use `std::partial_sort` and sort half of the e
 
 ---
 
-http://quick-bench.com/Svl-93AOl9J15Ai8zjNa-LCVFJM
+http://quick-bench.com/N66hED-N0VC4LybM_hKxRZJWyjw
 
 .img-full-size[![Partial sort result](img/partial-sort-result.png)]
+
+---
+
+## Home-cooked partial sort
+
+We can probably do better than this last one.
+
+Let's just std::sort the result of nth_element.
+
+---
+
+http://quick-bench.com/xUdmFTqxbmXAACsz7cn_NtBOC9Q
+
+.img-full-size[![Home partial sort result](img/home-partial-sort-result.png)]
 
 ---
 
