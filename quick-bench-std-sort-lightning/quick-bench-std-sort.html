@@ -199,7 +199,8 @@ static void unsorted(benchmark::State& state) {
   auto input = getRandomVect();
   for (auto _ : state)
   {
-    benchmark::DoNotOptimize(std::vector<int>(input));
+    std::vector<int> values(input);
+    benchmark::DoNotOptimize(values);
   }
 }
 BENCHMARK(unsorted);
@@ -245,7 +246,7 @@ nth_element is 10x faster than sort
 
 ## Partial sort
 
-Another way to get the mean is to use `std::partial_sort` and sort half of the elements.
+Another way to get the median is to use `std::partial_sort` and sort half of the elements.
 
 ---
 
