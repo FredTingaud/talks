@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 401 399" width="300" xmlns="http://www.w3.org/2000/svg">
+<title>C++ Francophonie C++FRUG</title>
+<desc>Logo of the C++FRUG (C++ FRench-speaking User Group)</desc>
+<metadata xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <rdf:RDF xmlns:cc="http://creativecommons.org/ns#">
+  <cc:Work rdf:about="https://commons.wikimedia.org/wiki/File:Cpp-Francophonie.svg" xmlns:dc="http://purl.org/dc/elements/1.1/">
+   <dc:format>image/svg+xml</dc:format>
+   <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+   <dc:source>https://commons.wikimedia.org/wiki/File:Cpp-Francophonie.svg#/media/File:Emblem_of_La_Francophonie.svg</dc:source>
+   <cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+   <dc:subject>
+    <rdf:Bag>
+     <rdf:li>C++ (programming language)</rdf:li>
+    </rdf:Bag>
+   </dc:subject>
+  </cc:Work>
+  <cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+   <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+   <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+   <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+  </cc:License>
+ </rdf:RDF>
+</metadata>
+<circle id="fond" fill="#ffffff" cx="202" cy="202" r="170"/>
+<path id="violet" fill="#84006b" d="m381 105-11 5-25 49c13 61-10 123-62 161l30 41c82-59 110-164 68-256z"/>
+<path id="vert"   fill="#109c52" d="m165 1 1 12 38 39c61 6 113 48 133 109l48-15c-27-84-102-153-220-145z"/>
+<path id="jaune"  fill="#ffd600" d="m0 177 12 3 49-25c24-57 79-94 143-94v-51c-125 2-189 92-204 167z"/>
+<path id="bleu"   fill="#0094c6" d="m115 389 6-11-8-53c-46-43-64-106-44-167l-48-16c-29 88 1 194 94 247z"/>
+<path id="rouge"  fill="#ff0000" d="m350 345-8-9c-9 9-18 18-29 25l-25-34c-53 31-119 29-171-9l-30 40c78 58 188 55 263-13z"/>
+<path id="C" d="m246 143c-169-71-174 201 0 112v39c-223 105-225-280 0-191"/>
+<path id="plus1" d="m200 164v34h34v20h-34v34h-20v-34h-34v-20h34v-34z"/>
+<path id="plus2" d="m300 164v34h34v20h-34v34h-20v-34h-34v-20h34v-34z"/>
+</svg>
