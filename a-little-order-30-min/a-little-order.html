@@ -440,9 +440,9 @@ k = N / 5
 
 ## When to use `std::partial_sort`
 
-*Use `partial_sort` when sorting for a constant number of elements that is considerably smaller than the total size of the container*.
+*Use `partial_sort` when sorting for a constant size subset of elements that is considerably smaller than the total size of the container*.
 
-*Prefer `nth_element + sort` if the number of elements grows with the container or is near the container size.*
+*Prefer `nth_element + sort` if the subset to sort grows with the container or is near the container size.*
 
 ---
 
@@ -635,7 +635,7 @@ Heap max is the nth element at the end.
 
 * O(N·log(k))
 
-* Negligeable memory consumption.
+* Negligible memory consumption.
 
 ---
 
@@ -718,9 +718,9 @@ The STL implementers went for a faster `O(N·log(k))` algorithm that performs we
 
 class: middle
 
-Despite the genericity of the STL, some choices have to be made.
+Despite the fact that the STL is generic, some choices have to be made.
 
-In this case, algorithms are tuned for their typical use cases.
+In this case, algorithms are fine tuned for their typical use cases.
 
 ---
 
