@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Clang Tidy</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+         font-family: 'Droid Serif';
+         color: #ccc;
+      }
+      .remark-slide-content {
+         background: #272822;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        font-size: 500%;
+         color: #fff;
+      }
+      .remark-code, .remark-inline-code {
+         font-family: 'Ubuntu Mono';
+         font-size:100%;
+         background-color: #373832 !important;
+      }
+      .remark-slide-content { font-size: 220%; }
+      .remark-slide-content h1 { font-size: 250%; }
+      .remark-slide-content h2 { font-size: 180%; }
+      .remark-slide-content h3 { font-size: 180%; }
+      .name {
+        position:absolute;
+        bottom: 80px;
+        left: 50px;
+        font-size: 100%;
+        color: #bbb
+      }
+      .footnote {
+        position:absolute;
+        bottom: 80px;
+        font-size: 80%;
+        right: 3em;
+        color: #bbb
+      }
+      .img-full-size img {
+        width:80%;
+      }
+      .img-half-size img {
+        width:40%;
+      }
+      .img-small-size img {
+        width: 25%;
+      }
+      .gold {
+        color: gold;
+      }
+      .version {
+        color: LightSkyBlue;
+      }
+      .boilerplate {
+        color: grey;
+      }
+      .url {
+      color:white;
+      }
+      .remark-code-line-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+      }
+      .remark-code-span-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+        padding: 0px 2px 0px 2px;
+      }
+      .censor {
+          background-color: black;
+          color:black;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: middle
+
+(⊙ヮ⊙')
+
+Is the remote working?
+
+---
+
+class: center, middle
+
+# Clang Tidy
+# a .censor[disruptive technology]
+
+.name[Fred Tingaud]
+.footnote[&#x1F426 @FredTingaudDev]
+
+---
+
+##  &#x1F41D Warning  &#x1F41D
+
+This presentation contains a buzzword 
+
+--
+
+But no Machine Learning
+
+--
+
+Nor Blockchain
+
+--
+
+Nor Big Data
+
+---
+
+class: center, middle
+
+# Clang Tidy
+# a .gold[disruptive technology]
+
+.name[Fred Tingaud]
+.footnote[&#x1F426 @FredTingaudDev]
+
+---
+
+## Disruptive Technology
+
+A technology that is not only making our job simpler but actually changes what this job is.
+
+---
+
+class: middle
+
+## Refactoring yesterday
+
+---
+
+## The Boy Scout Rule
+
+> `Leave your code better than you found it.`
+
+--
+
+Every time you touch a function / unit, refactor it a little. Over time, the quality of the code should rise consistently.
+
+---
+
+## The Boy Scout Rule
+
+Excellent to simplify and clarify internal functions.
+
+--
+
+Not as much to change interfaces (Who's got time for that?).
+
+---
+
+## The End of the Boy Scout Rule
+
+If your function is called 50,000 times...
+
+--
+
+¯\\\_(ツ)\_/¯ 
+
+---
+
+## The End of the Boy Scout Rule
+
+If the change is dangerous (change ownership of a pointer...).
+
+--
+
+(ーー;)ノ
+
+---
+
+class: middle
+
+## Refactoring in the age of Clang Tidy
+
+---
+
+## clang tidy
+
+clang-tidy is a clang-based C++ “linter” tool.
+
+Its detects some typical programming errors (style violations, interface misuse, or bugs) via static analysis.
+
+---
+
+## clang tidy
+
+```
+for (vector<int>::iterator it = v.begin()
+    ; it != v.end()
+    ; ++it)
+  cout << *it;
+```
+
+becomes
+
+```
+for (auto & elem : v)
+  cout << elem;
+```
+
+---
+
+```
+void f(int x) {
+  std::auto_ptr<int> a(new int(x));
+  std::auto_ptr<int> b;
+  b = a;
+  take_ownership_fn(b);
+}
+/* becomes */
+void f(int x) {
+  std::unique_ptr<int> a(new int(x));
+  std::unique_ptr<int> b;
+  b = std::move(a);
+  take_ownership_fn(std::move(b));
+}
+```
+---
+
+## clang tidy
+
+`clang-tidy is modular and provides a convenient interface for writing new checks.`
+
+---
+
+## clang tidy
+
+Remove a dead parameter from a function called 40,000 times, with comments interleaved and macros?
+
+--
+
+50 lines of code.
+
+---
+
+## clang tidy
+
+```C++
+/**
+ * \returns 0 if no error was encountered
+ * 1 otherwise.
+ */
+virtual int UIClass::initializeScreen(int input)
+```
+
+---
+
+```C++
+int UIClass::initializeScreen(int input)
+{
+  int result = 0;
+  if (treatInput(input))
+    return 1;
+  if (input > 0)
+    result = input < 10
+        ? super::myFunction(input)
+        : 1;
+  return result;
+}
+```
+
+---
+```C++
+enum class UIResult {Continue, Stop};
+
+UIResult UIClass::initializeScreen(int input)
+{
+* UIResult result = UIResult::Continue;
+  if (treatInput(input))
+*   return UIResult::Stop;
+  if (input > 0)
+    result = input < 10
+        ? super::myFunction(input)
+*       : UIResult::Stop;
+  return result;
+}
+```
+
+---
+
+## Disruptive Technology
+
+C++ developers in charge of maintaining big codelines went from scratching the surface of technical debt to actually being able to seriously impact it at large scale.
+
+--
+
+It doesn't make Boy Scout rule obsolete.
+
+Just that we can go way further.
+
+---
+
+class: center, middle
+
+# Thank you
+
+.name[Fred Tingaud]
+.footnote[&#x1F426 @FredTingaudDev]
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+          ratio: '16:9',
+          highlightStyle: 'tomorrow-night-bright',
+          highlightLanguage: 'C++',
+          highlightLines: true,
+          highlightSpans: true
+        });
+    </script>
+  </body>
+</html>
