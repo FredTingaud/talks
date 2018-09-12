@@ -181,7 +181,7 @@ nth_element is 10x faster than sort
 
 ## Home-cooked partial sort
 
-What if we just call `std::sort` on the result of nth_element?
+What if we just call `std::sort` on the result of `std::nth_element`?
 
 It should do the same as `std::partial_sort`...
 
@@ -216,7 +216,7 @@ class: middle
 
 ---
 
-# Let's read the contract
+# Read the Standards
 
 * Draft: .boilerplate[https://].url[github].boilerplate[.com/].url[cplusplus].boilerplate[/].url[draft]
 
@@ -224,9 +224,9 @@ class: middle
 
 ---
 
-## Let's read the contract - Sort
+## Read the Standards - Sort
 
-Fine print at the end of `std::sort` contract:
+`std::sort` contract:
 
 > **Complexity**
 >
@@ -236,9 +236,9 @@ Fine print at the end of `std::sort` contract:
 
 ---
 
-## Let's read the contract - Partial Sort
+## Read the Standards - Partial Sort
 
-Fine print at the end of `std::partial_sort` contract:
+`std::partial_sort` contract:
 
 > **Complexity**
 >
@@ -246,7 +246,7 @@ Fine print at the end of `std::partial_sort` contract:
 
 ---
 
-## Let's read the contract - Partial Sort
+## Read the Standards - Partial Sort
 
 Approximately (last-first)log(middle-first)) applications of cmp
 
@@ -262,17 +262,17 @@ Approximately (last-first)log(middle-first)) applications of cmp
 
 ---
 
-## Let's read the contract - Partial Sort
+## Read the Standards - Partial Sort
 
-In our case, k = N / 2
+For a median, k = N / 2
 
 `O(N·log(k))` becomes `O(N·log(N / 2))`
 
 ---
 
-## Let's read the contract - Partial Sort
+## Read the Standards - Partial Sort
 
-In our case, k = N / 2
+For a median, k = N / 2
 
 `O(N·log(N))`, where N = std::distance(first, last)
 
@@ -282,7 +282,7 @@ Just like `std::sort`
 
 ---
 
-## Let's read the contract - Partial Sort
+## Read the Standards - Partial Sort
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
@@ -292,7 +292,7 @@ k = 10
 
 ---
 
-## Let's read the contract - Partial Sort
+## Read the Standards - Partial Sort
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
@@ -302,7 +302,7 @@ k = 10
 
 ---
 
-## Let's read the contract - Nth Element + Sort
+## Read the Standards - Nth Element + Sort
 
 The contract of Nth Element
 
@@ -314,7 +314,7 @@ So for the full algorithm
 
 ---
 
-## Let's read the contract - Nth Element + Sort
+## Read the Standards - Nth Element + Sort
 
 When k = N / 2
 
@@ -326,7 +326,7 @@ When k = 10
 
 ---
 
-## Let's read the contract
+## Read the Standards
 
 We have the same complexities for `std::partial_sort` and our algorithm.
 
@@ -510,7 +510,7 @@ template<typename RandIt, typename _Compare>
 
 * Quicksort is very fast for most scenarios, but it can become `O(N²)` on worst case scenarios.
 
-* Heapsort is always `O(N·log(N))` but is 4-5 times slower for standard scenario.
+* Heapsort is always `O(N·log(N))` but is 4-5 times slower for typical scenario.
 
 --
 
@@ -680,8 +680,11 @@ Yet partial_sort can perform better than quickselect + quicksort?!
 
 ## Heapselect benchmark
 
+for 1.000.000 elements
+
 .img-full-size[![Heapselect](img/heap-select.png)]
 
+<!-- http://quick-bench.com/MDTKCR1zyjDh-pNENO0NI0JOG1Y -->
 ---
 
 ## Partial sort
