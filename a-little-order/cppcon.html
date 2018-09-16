@@ -47,6 +47,9 @@
       .img-full-size img {
         width:80%;
       }
+      .img-full-height img {
+        width:40%;
+      }
       .img-half-size img {
         width:40%;
       }
@@ -84,7 +87,7 @@ class: center, middle
 ## Delving into the STL sorting algorithms
 
 .name[Fred Tingaud]
-.footnote[&#x1F426 @FredTingaudDev]
+.footnote[@FredTingaudDev]
 
 ---
 
@@ -104,7 +107,7 @@ class: center, middle
 
 ## A use case
 
-Sorting a container in order to get the median of its values.
+Sorting a 1,000,000 elements container in order to get the median of its values.
 
 Comparisons are done with Clang 3.8 and GNU's libstdcxx.
 
@@ -201,7 +204,7 @@ Did we do better than the STL implementers in 5 minutes and 2 lines of code?
 
 --
 
-Probably not
+Probably not...
 
 --
 
@@ -226,7 +229,11 @@ class: middle
 
 ## Read the Standards - Sort
 
-`std::sort` contract:
+.img-full-height[![cppreference](img/cppreference.png)]
+
+---
+
+## Standards - `std::sort`
 
 > **Complexity**
 >
@@ -236,9 +243,7 @@ class: middle
 
 ---
 
-## Read the Standards - Partial Sort
-
-`std::partial_sort` contract:
+## Standards - `std::partial_sort`
 
 > **Complexity**
 >
@@ -246,11 +251,19 @@ class: middle
 
 ---
 
-## Read the Standards - Partial Sort
+## Standards - `std::partial_sort`
 
 Approximately (last-first)log(middle-first)) applications of cmp
 
 `O(N·log(k))`, where N = std::distance(first, last) and k = std::distance(first, pos)
+
+---
+
+## Two complexities
+
+![Home partial sort result](img/expand.png)
+
+![Home partial sort result](img/expand.png)
 
 ---
 
@@ -264,17 +277,17 @@ Approximately (last-first)log(middle-first)) applications of cmp
 
 ## Read the Standards - Partial Sort
 
-For a median, k = N / 2
+For a median, k = N / 2:
 
-`O(N·log(k))` becomes `O(N·log(N / 2))`
+`O(N·log(k))` becomes `O(N·log(N / 2))`.
 
 ---
 
 ## Read the Standards - Partial Sort
 
-For a median, k = N / 2
+For a median, k = N / 2:
 
-`O(N·log(N))`, where N = std::distance(first, last)
+`O(N·log(N))`, where N = std::distance(first, last).
 
 --
 
@@ -286,9 +299,9 @@ Just like `std::sort`
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
-k = 10
+k = 10:
 
-`O(N·log(10))`, where N = std::distance(first, last)
+`O(N·log(10))`, where N = std::distance(first, last).
 
 ---
 
@@ -296,19 +309,19 @@ k = 10
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
-k = 10
+k = 10:
 
-`O(N)`, where N = std::distance(first, last)
+`O(N)`, where N = std::distance(first, last).
 
 ---
 
 ## Read the Standards - Nth Element + Sort
 
-The contract of Nth Element
+The contract of Nth Element:
 
 `O(N)`, where N = std::distance(first, last) *on average*
 
-So for the full algorithm
+So for the full algorithm:
 
 `O(N + k·log(k))`
 
@@ -316,11 +329,11 @@ So for the full algorithm
 
 ## Read the Standards - Nth Element + Sort
 
-When k = N / 2
+When k = N / 2:
 
 `O(N + N/2·log(N/2))` => `O(N·log(N))`
 
-When k = 10
+When k = 10:
 
 `O(N + 10·log(10))` => `O(N)`
 
@@ -330,7 +343,27 @@ When k = 10
 
 We have the same complexities for `std::partial_sort` and our algorithm.
 
-The difference is not due to a contract difference.
+The difference is not due to any difference in the contract.
+
+---
+
+class: middle
+
+# Compare implementations / compilers
+
+---
+
+## Comparing implementations
+
+* Compiler Explorer: .boilerplate[https://].url[godbolt.org]
+
+* Wandbox: .boilerplate[https://].url[wandbox.org]
+
+---
+
+## Comparing implementations
+
+.img-full-size[![Implementations comparison](img/implementation-comparison.png)]
 
 ---
 
@@ -348,33 +381,15 @@ class: middle
 
 ---
 
-class: middle
-
-## Comparing implementations
-
----
-
-## Comparing implementations
-
-.img-full-size[![Implementations comparison](img/implementation-comparison.png)]
-
----
-
-class: middle
-
-## Measure Size Variation
-
----
-
 ## Measure Size Variation
 
 We are sorting a subset inside a container.
 
-* Subset size may vary
+* Subset size may vary.
 
-* Container size may vary
+* Container size may vary.
 
-* Both may vary
+* Both may vary.
 
 ---
 
@@ -386,9 +401,23 @@ We are sorting a subset inside a container.
 
 ## Measure Size Variation - Subset
 
+1,000,000 elements.
+
+We vary the number of elements we sort in it.
+
+---
+
+## Measure Size Variation - Subset
+
 .img-full-size[![Algorithm by k](img/whole-range.png)]
 
 <!-- http://quick-bench.com/Nn6R4vkSCfHL24_XoO9b0bKffMw -->
+
+---
+
+## Measure Size Variation - Subset
+
+.img-full-size[![Algorithm by k](img/whole-range2.png)]
 
 ---
 
@@ -410,6 +439,14 @@ Zoomed
 
 ## Measure Size Variation - Container
 
+We always sort 100 elements.
+
+We vary the size of the full container.
+
+---
+
+## Measure Size Variation - Container
+
 k = 100
 
 .img-full-size[![k = 100](img/M_100.png)]
@@ -421,6 +458,14 @@ k = 100
 ## Measure Size Variation - Both
 
 .img-full-size[![Expand](img/expand-ratio.gif)]
+
+---
+
+## Measure Size Variation - Both
+
+We always sort 1/5th of the elements.
+
+We vary the size of the container.
 
 ---
 
@@ -442,9 +487,9 @@ This time, we have an actual difference!
 
 ## When to use `std::partial_sort`
 
-*Use `partial_sort` when sorting a subset that is considerably smaller than the whole container*.
+*Use `partial_sort` when sorting a subset that is considerably smaller than the whole container.*
 
-*Prefer `nth_element + sort` if the size of the sorted subset is the same order of magnitude as the whole container.*
+*Use `nth_element + sort` if the size of the sorted subset is the same order of magnitude as the whole container.*
 
 ---
 
@@ -478,8 +523,6 @@ class:middle
 
 ---
 
-## GCC implementation
-
 ```C++
 template<typename RandIt, typename _Compare>
   inline void
@@ -508,9 +551,9 @@ template<typename RandIt, typename _Compare>
 
 ## Introsort
 
-* Quicksort is very fast for most scenarios, but it can become `O(N²)` on worst case scenarios.
+* Quicksort is very fast for most scenarios, but it can become `O(N²)` on worst-case scenarios.
 
-* Heapsort is always `O(N·log(N))` but is 4-5 times slower for typical scenario.
+* Heapsort is always `O(N·log(N))` but it takes 4-5 times longer to sort typical scenario.
 
 --
 
@@ -520,15 +563,13 @@ Introsort does BOTH!
 
 ## Introsort
 
-Quicksort recurses on `2 * log(N)` levels max
+Quicksort recurses on `2 * log(N)` levels max.
 
-Then Heapsort is called on the rest in case it's still not sorted
+Then Heapsort is called on the rest in case it's still not sorted.
 
-`O(N·log(N))` in all cases
+`O(N·log(N))` in all cases.
 
 ---
-
-## GCC implementation
 
 ```C++
 template<typename RandIt, typename _Compare>
@@ -546,17 +587,15 @@ template<typename RandIt, typename _Compare>
 
 ---
 
-## Final Insertion Sort
+## Insertion Sort
 
 `O(N²)` algorithm.
 
 --
 
-On small subranges, insertion sort performs better than Quicksort.
+Over small subranges, Insertion Sort performs better than Quicksort.
 
-We sort until subranges are of size < k.
-
-Insertion sort is then `O(k·N)`.
+We sort until the size of subranges are < k.
 
 ---
 
@@ -565,8 +604,6 @@ class: middle
 ## `std::nth_element`
 
 ---
-
-## GCC Implementation
 
 ```C++
 template<typename RandIt>
@@ -577,19 +614,11 @@ template<typename RandIt>
   if (first == last || nth == last)
     return;
 
-  std::__introselect(first, nth, last,
-                     std::__lg(last - first) * 2,
-                     __gnu_cxx::__ops::__iter_less_iter());
+* std::__introselect(first, nth, last,
+*            std::__lg(last - first) * 2,
+*            __gnu_cxx::__ops::__iter_less_iter());
 }
 ```
-
----
-
-## Nth Element
-
-> **Complexity**
->
-> `O(N)`, where N = std::distance(first, last) *on average*
 
 ---
 
@@ -603,13 +632,23 @@ template<typename RandIt>
 
 ## Quickselect
 
-Simplified Quicksort
+Simplified Quicksort.
 
 We choose a pivot and we partition like Quicksort.
 
-If the pivot ends up at nth position, we are finished.
+--
+
+If the pivot ends up at nth position, we are done.
+
+--
 
 Otherwise, we recurse only on the side that contains nth position.
+
+---
+
+## Quickselect
+
+.img-full-size[![Quick Select](img/quick-select.png)]
 
 ---
 
@@ -621,7 +660,7 @@ Otherwise, we recurse only on the side that contains nth position.
 
 ## Heapselect
 
-We create a heap on n elements with fast access to max.
+We create a heap on n elements.
 
 --
 
@@ -639,9 +678,7 @@ Heap max is the nth element at the end.
 
 ## Heapselect
 
-* O(N·log(k))
-
-* Negligible memory consumption.
+* `O(N·log(k))`.
 
 ---
 
@@ -661,8 +698,8 @@ template<typename RandIt, typename _Compare>
                  RandIt last,
                  _Compare comp)
 {
-   std::__heap_select(first, middle, last, comp);
-   std::__sort_heap(first, middle, comp);
+* std::__heap_select(first, middle, last, comp);
+* std::__sort_heap(first, middle, comp);
 }
 ```
 
@@ -670,17 +707,23 @@ template<typename RandIt, typename _Compare>
 
 ## Partial sort
 
-We said that heapsort was slower than quicksort
+We said that heapsort was slower than quicksort.
 
-heapselect is `O(N·log(k))` when quickselect is `O(N)`
+Heapselect is `O(N·log(k))` when quickselect is `O(N)`.
 
-Yet partial_sort can perform better than quickselect + quicksort?!
+How come partial_sort can sometimes perform better than quickselect + quicksort?!
 
 ---
 
 ## Heapselect benchmark
 
-for 1.000.000 elements
+With a container of 1.000.000 elements.
+
+We vary the position we are searching.
+
+---
+
+## Heapselect benchmark
 
 .img-full-size[![Heapselect](img/heap-select.png)]
 
@@ -689,9 +732,9 @@ for 1.000.000 elements
 
 ## Partial sort
 
-* Heapselect performs better with low `k` value
+* Heapselect performs better with low `k` value.
 
-* Its performance decreases with the value of `k`
+* Heapselect speed decreases as the value of `k` increases.
 
 ---
 
@@ -703,11 +746,11 @@ class: middle
 
 ## Nth element
 
-Nth element is used for every value of `k`.
+Nth element has valid use-cases for any value of `k`.
 
-It can be to get a decile, or a median.
+First decile, last decile, median...
 
-The STL implementers went for a `O(N)` algorithm that behaves independantly from `k`.
+The STL implementers chose a `O(N)` algorithm that doesn't depend on `k`.
 
 ---
 
@@ -715,7 +758,7 @@ The STL implementers went for a `O(N)` algorithm that behaves independantly from
 
 The typical usage of `std::partial_sort` is to sort a small subset of elements in a big container.
 
-The STL implementers went for a faster `O(N·log(k))` algorithm that performs well for this typical use-case at the expense of other scenarios.
+The STL implementers chose a faster `O(N·log(k))` algorithm that performs well for this typical use-case at the expense of other scenarios.
 
 ---
 
@@ -723,7 +766,7 @@ class: middle
 
 Despite the fact that the STL is generic, some choices have to be made.
 
-In this case, algorithms are fine tuned for their typical use cases.
+In this case, algorithms are fine-tuned for their typical use cases.
 
 ---
 
@@ -740,7 +783,7 @@ class: center, middle
 # Thank you
 
 .name[Fred Tingaud]
-.footnote[&#x1F426 @FredTingaudDev]
+.footnote[@FredTingaudDev]
 
 
     </textarea>
