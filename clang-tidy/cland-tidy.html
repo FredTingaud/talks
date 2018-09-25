@@ -95,7 +95,7 @@ class: center, middle
 # a .censor[disruptive technology]
 
 .name[Fred Tingaud]
-.footnote[&#x1F426 @FredTingaudDev]
+.footnote[@FredTingaudDev]
 
 ---
 
@@ -141,11 +141,7 @@ class: middle
 
 ## The Boy Scout Rule
 
-> `Leave your code better than you found it.`
-
---
-
-Every time you touch a function / unit, refactor it a little. Over time, the quality of the code should rise consistently.
+> `Leave the code better than you found it.`
 
 ---
 
@@ -191,41 +187,6 @@ clang-tidy is a clang-based C++ “linter” tool.
 
 Its detects some typical programming errors (style violations, interface misuse, or bugs) via static analysis.
 
----
-
-## clang tidy
-
-```
-for (vector<int>::iterator it = v.begin()
-    ; it != v.end()
-    ; ++it)
-  cout << *it;
-```
-
-becomes
-
-```
-for (auto & elem : v)
-  cout << elem;
-```
-
----
-
-```
-void f(int x) {
-  std::auto_ptr<int> a(new int(x));
-  std::auto_ptr<int> b;
-  b = a;
-  take_ownership_fn(b);
-}
-/* becomes */
-void f(int x) {
-  std::unique_ptr<int> a(new int(x));
-  std::unique_ptr<int> b;
-  b = std::move(a);
-  take_ownership_fn(std::move(b));
-}
-```
 ---
 
 ## clang tidy
@@ -292,21 +253,15 @@ UIResult UIClass::initializeScreen(int input)
 ## Disruptive Technology
 
 C++ developers in charge of maintaining big codelines went from scratching the surface of technical debt to actually being able to seriously impact it at large scale.
-
---
-
-It doesn't make Boy Scout rule obsolete.
-
-Just that we can go way further.
-
 ---
 
 class: center, middle
 
-# Thank you
+# Clang Tidy
+# a .gold[disruptive technology]
 
 .name[Fred Tingaud]
-.footnote[&#x1F426 @FredTingaudDev]
+.footnote[@FredTingaudDev]
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js">
