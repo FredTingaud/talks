@@ -107,9 +107,11 @@ class: center, middle
 
 ## A use case
 
-Sorting a 1,000,000 elements container in order to get the median of its values.
+Sorting a 1,000,000 elements vector to get the median.
 
-Comparisons are done with Clang 3.8 and GNU's libstdcxx.
+Clang 3.8
+
+GNU's libstdcxx
 
 ---
 
@@ -237,9 +239,9 @@ class: middle
 
 > **Complexity**
 >
-> `O(N·log(N))`, where N = std::distance(first, last) comparisons *on average*. .version[(until C++11)]
+> `O(N·log(N))`, on average .version[(until C++11)].
 >
-> `O(N·log(N))`, where N = std::distance(first, last) comparisons. .version[(since C++11)]
+> `O(N·log(N))`.version[(since C++11)].
 
 ---
 
@@ -249,13 +251,12 @@ class: middle
 >
 > Approximately (last-first)log(middle-first)) applications of cmp
 
----
 
-## Standards - `std::partial_sort`
+`O(N·log(k))`
 
-Approximately (last-first)log(middle-first)) applications of cmp
+* N = full container size
 
-`O(N·log(k))`, where N = std::distance(first, last) and k = std::distance(first, pos)
+* k = subset size
 
 ---
 
@@ -277,17 +278,17 @@ Approximately (last-first)log(middle-first)) applications of cmp
 
 ## Read the Standards - Partial Sort
 
-For a median, k = N / 2:
+For a median, k = N / 2
 
-`O(N·log(k))` becomes `O(N·log(N / 2))`.
+`O(N·log(k))` <=> `O(N·log(N / 2))`
 
 ---
 
 ## Read the Standards - Partial Sort
 
-For a median, k = N / 2:
+For a median, k = N / 2
 
-`O(N·log(N))`, where N = std::distance(first, last).
+`O(N·log(N))`
 
 --
 
@@ -299,9 +300,9 @@ Just like `std::sort`
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
-k = 10:
+k = 10
 
-`O(N·log(10))`, where N = std::distance(first, last).
+`O(N·log(10))`
 
 ---
 
@@ -309,9 +310,9 @@ k = 10:
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
-k = 10:
+k = 10
 
-`O(N)`, where N = std::distance(first, last).
+`O(N)`
 
 ---
 
@@ -319,9 +320,9 @@ k = 10:
 
 The contract of Nth Element:
 
-`O(N)`, where N = std::distance(first, last) *on average*
+`O(N)` on average
 
-So for the full algorithm:
+So Nth Element + Sort on the result:
 
 `O(N + k·log(k))`
 
@@ -329,21 +330,19 @@ So for the full algorithm:
 
 ## Read the Standards - Nth Element + Sort
 
-When k = N / 2:
+When k = N / 2
 
-`O(N + N/2·log(N/2))` => `O(N·log(N))`
+`O(N + N/2·log(N/2))` <=> `O(N·log(N))`
 
-When k = 10:
+When k = 10
 
-`O(N + 10·log(10))` => `O(N)`
+`O(N + 10·log(10))` <=> `O(N)`
 
 ---
 
 ## Read the Standards
 
-We have the same complexities for `std::partial_sort` and our algorithm.
-
-The difference is not due to any difference in the contract.
+Same complexities for `std::partial_sort` and our algorithm.
 
 ---
 
@@ -364,6 +363,12 @@ class: middle
 ## Comparing implementations
 
 .img-full-size[![Implementations comparison](img/implementation-comparison.png)]
+
+---
+
+## Comparing implementations
+
+Same results for all implementations of the libc++.
 
 ---
 
@@ -401,9 +406,9 @@ We are sorting a subset inside a container.
 
 ## Measure Size Variation - Subset
 
-1,000,000 elements.
+* 1,000,000 elements
 
-We vary the number of elements we sort in it.
+* We vary the number of elements we sort in it
 
 ---
 
@@ -439,9 +444,9 @@ Zoomed
 
 ## Measure Size Variation - Container
 
-We always sort 100 elements.
+* We sort 100 elements
 
-We vary the size of the full container.
+* We vary the size of the full container
 
 ---
 
@@ -463,9 +468,9 @@ k = 100
 
 ## Measure Size Variation - Both
 
-We always sort 1/5th of the elements.
+* We sort 1/5th of the elements
 
-We vary the size of the container.
+* We vary the size of the container
 
 ---
 
@@ -481,19 +486,19 @@ k = N / 5
 
 ## Measure Size Variation
 
-This time, we have an actual difference!
+We have an actual difference!
 
 ---
 
 ## When to use `std::partial_sort`
 
-*Use `partial_sort` when sorting a subset that is considerably smaller than the whole container.*
+Use `partial_sort` when sorting a subset that is considerably smaller than the whole container.
 
-*Use `nth_element + sort` if the size of the sorted subset is the same order of magnitude as the whole container.*
+Otherwise, use `nth_element + sort`.
 
 ---
 
-## How? Why?
+## Why?
 
 How is partial_sort faster than nth_element for lower values of k?
 
@@ -543,9 +548,9 @@ template<typename RandIt, typename _Compare>
 
 > **Complexity**
 >
-> `O(N·log(N))`, where N = std::distance(first, last) comparisons *on average*. .version[(until C++11)]
+> `O(N·log(N))`, on average .version[(until C++11)].
 >
-> `O(N·log(N))`, where N = std::distance(first, last) comparisons. .version[(since C++11)]
+> `O(N·log(N))`.version[(since C++11)].
 
 ---
 
@@ -717,9 +722,9 @@ How come partial_sort can sometimes perform better than quickselect + quicksort?
 
 ## Heapselect benchmark
 
-With a container of 1.000.000 elements.
+* 1.000.000 elements
 
-We vary the position we are searching.
+* We vary the position we are searching
 
 ---
 
@@ -732,9 +737,9 @@ We vary the position we are searching.
 
 ## Partial sort
 
-* Heapselect performs better with low `k` value.
+* Heapselect performs better with low `k` value
 
-* Heapselect speed decreases as the value of `k` increases.
+* Heapselect has bigger complexity.
 
 ---
 
@@ -780,11 +785,12 @@ And now we do too!
 
 class: center, middle
 
-# Thank you
+# A Little Order!
+
+## Delving into the STL sorting algorithms
 
 .name[Fred Tingaud]
 .footnote[@FredTingaudDev]
-
 
     </textarea>
     <script src="https://remarkjs.com/downloads/remark-latest.min.js">
