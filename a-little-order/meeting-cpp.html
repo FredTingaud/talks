@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A little order!</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+         font-family: 'Droid Serif';
+         color: #ccc;
+      }
+      .remark-slide-content {
+         background: #272822;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        font-size: 500%;
+         color: #fff;
+      }
+      .remark-code, .remark-inline-code {
+         font-family: 'Ubuntu Mono';
+         font-size:100%;
+         background-color: #373832 !important;
+      }
+      .remark-slide-content { font-size: 220%; }
+      .remark-slide-content h1 { font-size: 250%; }
+      .remark-slide-content h2 { font-size: 180%; }
+      .remark-slide-content h3 { font-size: 180%; }
+      .name {
+        position:absolute;
+        bottom: 80px;
+        left: 50px;
+        font-size: 100%;
+        color: #bbb
+      }
+      .twitter {
+        position:absolute;
+        bottom: 80px;
+        font-size: 80%;
+        right: 3em;
+        color: #bbb
+      }
+      .footnote {
+        position:absolute;
+        bottom: 0.2em;
+        left: 14em;
+        font-size: 60%;
+        color: #bbb
+      }
+      .img-full-size img {
+        width:80%;
+      }
+      .img-full-height img {
+        width:40%;
+      }
+      .img-half-size img {
+        width:40%;
+      }
+      .img-small-size img {
+        width: 25%;
+      }
+      .gold {
+        color: gold;
+      }
+      .version {
+        color: LightSkyBlue;
+      }
+      .boilerplate {
+        color: grey;
+      }
+      .url {
+        color:white;
+      }
+      .remark-code-line-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+      }
+      .remark-code-span-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+        padding: 0px 2px 0px 2px;
+      }
+      .remark-slide-number {
+        position: inherit;
+      }
+      .remark-slide-number .progress-bar-container {
+        position: absolute;
+        bottom: 0;
+        height: 4px;
+        display: block;
+        left: 0;
+        right: 0;
+      }
+      .remark-slide-number .progress-bar {
+        height: 100%;
+        background-color: cyan;
+      }
+      .slide-number {
+        position:absolute;
+        bottom: 0.5em;
+        right: 1em;
+        font-size: 70%;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# A Little Order!
+
+## Delving into the STL sorting algorithms
+
+.name[Fred Tingaud]
+.twitter[@FredTingaudDev]
+
+---
+
+layout: true
+
+.center[.footnote[Fred Tingaud - @FredTingaudDev - Meeting C++]]
+
+---
+
+## quick-bench.com
+
+
+.img-full-size[![Quick Bench interface](img/before.png)]
+
+---
+
+## quick-bench.com
+
+
+.img-full-size[![Quick Bench interface](img/after.png)]
+
+---
+
+## Google Benchmark
+```C++
+static void StringCopy(benchmark::State& state){
+  std::string x = "hello";
+  for (auto _ : state)
+    std::string copy(x);
+}
+BENCHMARK(StringCopy);
+```
+
+---
+
+## Google Benchmark
+```C++
+static void StringCopy(benchmark::State& state){
+  std::string x(state.range(0), 'x');
+  for (auto _ : state)
+    std::string copy(x);
+}
+BENCHMARK(StringCopy)->Arg(1)->Arg(8)->Arg(1024);
+```
+
+---
+
+## Google Benchmark
+```C++
+static void StringCopy(benchmark::State& state){
+  std::string x(state.range(0), 'x');
+  for (auto _ : state)
+    std::string copy(x);
+}
+BENCHMARK(StringCopy)->Range(1, 1024);
+```
+
+---
+
+<!-- http://quick-bench.com/AqJIRk1eCk4IX4hLLDfJ-uaPqMU -->
+
+.img-full-size[![Copy by Size](img/copy-by-size.png)]
+
+---
+
+## A use case
+
+Sorting a 1,000,000 elements vector to get the median.
+
+Clang 3.8
+
+GNU's libstdcxx
+
+---
+
+## std::sort
+
+.img-full-size[![Sort result](img/sort.png)]
+
+<!-- http://quick-bench.com/7QSvcyregOwAOpp3MEFdnvYyt_0 -->
+
+---
+
+## std::sort
+
+```C++
+static void sorted(benchmark::State& state) {
+  auto input = getRandomVect();
+  for (auto _ : state)
+  {
+    std::vector<int> values(input);
+    std::sort(values.begin(), values.end());
+  }
+}
+BENCHMARK(sorted);
+```
+
+---
+
+## Unsorted
+
+```C++
+static void unsorted(benchmark::State& state) {
+  auto input = getRandomVect();
+  for (auto _ : state)
+  {
+    std::vector<int> values(input);
+    benchmark::DoNotOptimize(values);
+  }
+}
+BENCHMARK(unsorted);
+```
+
+---
+
+## std::sort
+
+.img-full-size[![Sort result](img/sorted-result.png)]
+
+<!-- http://quick-bench.com/7QSvcyregOwAOpp3MEFdnvYyt_0 -->
+
+---
+
+## std::stable_sort
+
+`std::sort`
+
+.img-full-size[![Sort result](img/unstable-sort.png)]
+
+`std::stable_sort`
+
+.img-full-size[![Sort result](img/stable-sort.png)]
+
+
+---
+
+## std::stable_sort
+
+<!-- http://quick-bench.com/dMAntsI0LNzurcC1qo8b9KcXlug -->
+
+.img-full-size[![Stable sort result](img/stable-sorted-result.png)]
+
+---
+
+## std::nth_element
+
+.img-half-size[![Nth graph](img/nth-element1.png)]
+
+--
+
+.img-half-size[![Nth graph](img/nth-element2.png)]
+
+
+---
+
+## std::nth_element
+
+
+<!-- http://quick-bench.com/Sp7F2OELsI4X9bm9HEOH0IimWV4 -->
+
+.img-full-size[![Nth result](img/nth-element-result.png)]
+nth_element is 10x faster than sort
+
+---
+
+## std::partial_sort
+
+.img-half-size[![partial graph](img/partial-sort1.png)]
+
+--
+
+.img-half-size[![partial graph](img/partial-sort2.png)]
+
+---
+
+## std::partial_sort
+
+<!-- http://quick-bench.com/Svl-93AOl9J15Ai8zjNa-LCVFJM -->
+
+.img-full-size[![Partial sort result](img/partial-sort-result.png)]
+
+---
+
+## Home-cooked partial sort
+
+What if we just call `std::sort` on the result of `std::nth_element`?
+
+It should do the same as `std::partial_sort`...
+
+---
+
+## Home-cooked partial sort
+
+<!-- http://quick-bench.com/7d6eKuso1-i36VPp4fZ9qGvPtnQ -->
+
+.img-full-size[![Home partial sort result](img/home-partial-sort-result.png)]
+
+---
+
+## Home-cooked partial sort
+
+Did we do better than the STL implementers in 5 minutes and 2 lines of code?
+
+--
+
+Probably not...
+
+--
+
+Let's try to understand why!
+
+---
+
+class: middle
+
+# Check the contract!
+
+
+---
+
+# Read the Standards
+
+* Draft: .boilerplate[https://].url[github].boilerplate[.com/].url[cplusplus].boilerplate[/].url[draft]
+
+* C++ Reference: .boilerplate[https://].url[cppreference].boilerplate[.com]
+
+---
+
+## Read the Standards - Sort
+
+.img-full-height[![cppreference](img/cppreference.png)]
+
+---
+
+## Standards - `std::sort`
+
+> **Complexity**
+>
+> `O(N·log(N))`, on average .version[(until C++11)].
+>
+> `O(N·log(N))`.version[(since C++11)].
+
+---
+
+## Standards - `std::partial_sort`
+
+> **Complexity**
+>
+> Approximately (last-first)log(middle-first)) applications of cmp
+
+---
+
+## Standards - `std::partial_sort`
+
+Approximately (last-first)log(middle-first)) applications of cmp
+
+`O(N·log(k))`
+
+* N = full container size
+
+* k = subset size
+
+---
+
+## Two complexities
+
+![Home partial sort result](img/expand.png)
+
+![Home partial sort result](img/expand.png)
+
+---
+
+## Two complexities
+
+![Home partial sort result](img/expand.gif)
+
+![Home partial sort result](img/expand-ratio.gif)
+
+---
+
+## Read the Standards - Partial Sort
+
+For a median, k = N / 2
+
+`O(N·log(N / 2))`, where N = std::distance(first, last)
+
+---
+
+## Read the Standards - Partial Sort
+
+In our case, k = N / 2
+
+`O(N·(log(N) - log(2))`, where N = std::distance(first, last)
+
+---
+
+## Read the Standards - Partial Sort
+
+In our case, k = N / 2
+
+`O(N·log(N) - N·log(2))`, where N = std::distance(first, last)
+
+---
+
+## Read the Standards - Partial Sort
+
+In our case, k = N / 2
+
+`O(N·log(N))`, where N = std::distance(first, last)
+
+--
+
+Just like `std::sort`
+
+---
+
+## Read the Standards - Partial Sort
+
+If we want to sort the 10 best scores in a MMO scoreboard.
+
+k = 10
+
+`O(N·log(10))`, where N = std::distance(first, last)
+
+---
+
+## Read the Standards - Partial Sort
+
+If we want to sort the 10 best scores in a MMO scoreboard.
+
+k = 10
+
+`O(N)`, where N = std::distance(first, last)
+
+---
+
+## Read the Standards - Partial Sort
+
+`O(N)`, now, THAT is a better complexity.
+
+---
+
+## Read the Standards - Nth Element + Sort
+
+The contract of Nth Element
+
+`O(N)`, where N = std::distance(first, last) *on average*
+
+So for the full algorithm
+
+`O(N + k·log(k))`
+
+---
+
+## Read the Standards - Nth Element + Sort
+
+When k = N / 2
+
+`O(N + N/2·log(N/2))` = `O(N·log(N))`
+
+When k = 10
+
+`O(N + 10·log(10))` = `O(N)`
+
+---
+
+class: middle
+
+# Compare implementations / compilers
+
+---
+
+## Comparing implementations
+
+* Compiler Explorer: .boilerplate[https://].url[godbolt.org]
+
+* Wandbox: .boilerplate[https://].url[wandbox.org]
+
+---
+
+## GCC 5.5 + GNU libstdc++
+
+.img-full-size[![Home partial sort result](img/gcc-5.5.png)]
+
+---
+
+## GCC 8.2 + GNU libstdc++
+
+.img-full-size[![Home partial sort result](img/gcc-8.2.png)]
+
+---
+
+## Clang 3.8 + LLVM libc++
+
+.img-full-size[![Home partial sort result](img/clang-3.8.png)]
+
+---
+
+## Clang 6.0 + LLVM libc++
+
+.img-full-size[![Home partial sort result](img/clang-6.0.png)]
+
+---
+
+## VS 2017
+
+.img-full-size[![Home partial sort result](img/VS2017.png)]
+
+---
+
+## Comparing implementations
+
+Same results for all implementations of the libc++.
+
+---
+
+class: middle
+
+# Measure
+
+---
+
+## Measure
+
+* Google Benchmark: .boilerplate[https://].url[github].boilerplate[.com/].url[google].boilerplate[/].url[benchmark]
+
+* Quick Bench: .boilerplate[http://].url[quick-bench].boilerplate[.com]
+
+---
+
+## Measure Size Variation
+
+We are sorting a subset inside a container.
+
+* Subset size may vary.
+
+* Container size may vary.
+
+* Both may vary.
+
+---
+
+## Measure Size Variation - Subset
+
+.img-full-size[![Ratios](img/ratios.gif)]
+
+---
+
+## Measure Size Variation - Subset
+
+* 1,000,000 elements
+
+* We vary the number of elements we sort in it
+
+---
+
+## Measure Size Variation - Subset
+
+.img-full-size[![Algorithm by k](img/whole-range.png)]
+
+<!-- http://quick-bench.com/Nn6R4vkSCfHL24_XoO9b0bKffMw -->
+
+---
+
+## Measure Size Variation - Subset
+
+.img-full-size[![Algorithm by k](img/whole-range2.png)]
+
+---
+
+## Measure Size Variation - Subset
+
+Zoomed
+
+.img-full-size[![Algorithm by k](img/zoomed-range.png)]
+
+<!-- http://quick-bench.com/h8durv1mn6bxqOJDMA5jl07qC_E -->
+
+---
+
+## Measure Size Variation - Container
+
+.img-full-size[![Expand](img/expand.gif)]
+
+---
+
+## Measure Size Variation - Container
+
+* We sort 100 elements
+
+* We vary the size of the full container
+
+---
+
+## Measure Size Variation - Container
+
+k = 100
+
+.img-full-size[![k = 100](img/M_100.png)]
+
+<!-- http://quick-bench.com/2FB3GXUD_UZRAXdLqQxB-hz5q2Y -->
+
+---
+
+## Measure Size Variation - Both
+
+.img-full-size[![Expand](img/expand-ratio.gif)]
+
+---
+
+## Measure Size Variation - Both
+
+* We sort 1/5th of the elements
+
+* We vary the size of the container
+
+---
+
+## Measure Size Variation - Both
+
+k = N / 5
+
+.img-full-size[![k = N / 5 ](img/M_N_by_5.png)]
+
+<!-- http://quick-bench.com/6ZLClu33xzV3A_Sl8cspXYl-oPc -->
+
+---
+
+## Measure Size Variation
+
+We have an actual difference!
+
+---
+
+## When to use `std::partial_sort`
+
+Use `partial_sort` when sorting a subset that is considerably smaller than the whole container.
+
+Otherwise, use `nth_element + sort`.
+
+---
+
+## Why?
+
+How is partial_sort faster than nth_element for lower values of k?
+
+Why is it slower for higher values?
+
+---
+
+class: middle
+
+## Let's review some famous algorithms
+
+---
+
+class: middle
+
+## Insertion Sort
+
+---
+
+## Insertion Sort
+
+.img[![Insertion Sort](img/insert-two.gif)]
+
+---
+
+## Insertion Sort
+
+.img[![Insertion Sort](img/insert-three.gif)]
+
+---
+
+## Insertion Sort
+
+.img[![Insertion Sort](img/insert-four.gif)]
+
+---
+
+## Insertion Sort
+
+.img[![Insertion Sort](img/insert-five.gif)]
+
+---
+
+## Insertion Sort
+
+* `O(n²)`
+
+* Negligeable memory consumption
+
+---
+
+class: middle
+
+## Do you expect to see *Insertion Sort* in your implementation of `std::sort`?
+
+---
+
+class: middle
+
+## Quicksort
+
+---
+
+## Quicksort
+
+.img[![Quicksort](img/quick-sort1.png)]
+
+---
+
+## Quicksort
+
+.img[![Quicksort](img/quick-sort2.gif)]
+
+---
+
+## Quicksort
+
+.img[![Quicksort](img/quick-sort3.gif)]
+
+---
+
+## Quicksort
+
+* `O(N·log(N))` *on average*
+
+* Quick
+
+* Negligeable memory consumption
+
+--
+
+* `O(N²)` on worst case scenario
+
+---
+
+class: middle
+
+## Do you expect to see *Quick Sort* in your implementation of `std::sort`?
+
+---
+
+class: middle
+
+## Heapsort
+
+---
+
+## Heap
+
+.img[![Heapsort](img/heap1.png)]
+
+---
+
+## Heap - Insert
+
+.img[![Heapsort](img/heap2.gif)]
+
+---
+
+## Heap - Pop
+
+.img[![Heapsort](img/heap3.gif)]
+
+---
+
+## Heap - Array
+
+.img[![Heapsort](img/heap4.gif)]
+
+---
+
+## Heapsort
+
+* We build a heap tree inside the container to sort.
+
+* Then we extract elements one by one and put them back in the position freed by the heap.
+
+---
+
+## Heapsort
+
+.img[![Heapsort](img/heap5.gif)]
+
+---
+
+## Heapsort
+
+* `O(N·log(N))`
+
+* 4 to 5 times slower than quick-sort
+
+* Negligeable memory consumption
+
+---
+
+## Heapsort
+
+.img-full-size[![Heapsort vs Quick Sort](img/qsort-heap.png)]
+
+---
+
+class: middle
+
+## Do you expect to see *Heap Sort* in your implementation of `std::sort`?
+
+---
+
+class:middle
+
+## Read The Code
+
+---
+
+## Read The Code
+
+* GCC - .boilerplate[https://].url[github].boilerplate[.com/].url[gcc-mirror].boilerplate[/].url[gcc]
+
+* LLVM's libcxx - .boilerplate[https://].url[github].boilerplate[.com/].url[llvm-mirror].boilerplate[/].url[libcxx]
+
+* Visual Studio - `F12`
+
+---
+
+class:middle
+
+## `std::sort`
+
+---
+
+```C++
+template<typename RandIt, typename _Compare>
+  inline void
+  __sort(RandIt first, RandIt last,
+         _Compare comp) {
+  if (first != last){
+*   std::__introsort_loop(first, last,
+*                         std::__lg(last-first)*2,
+*                         comp);
+    std::__final_insertion_sort(first, last, comp);
+  }
+}
+```
+
+---
+
+## std::sort
+
+> **Complexity**
+>
+> `O(N·log(N))`, on average .version[(until C++11)].
+>
+> `O(N·log(N))`.version[(since C++11)].
+
+---
+
+## Introsort
+
+* Quicksort is very fast for most scenarios, but it can become `O(N²)` on worst-case scenarios.
+
+* Heapsort is always `O(N·log(N))` but it takes 4-5 times longer to sort typical scenario.
+
+--
+
+Introsort does BOTH!
+
+---
+
+## Introsort
+
+Quicksort recurses on `2 * log(N)` levels max.
+
+Then Heapsort is called on the rest in case it's still not sorted.
+
+`O(N·log(N))` in all cases.
+
+---
+
+```C++
+template<typename RandIt, typename _Compare>
+  inline void
+  sort(RandIt first, RandIt last,
+         _Compare comp) {
+  if (first != last){
+    std::__introsort_loop(first, last,
+                          std::__lg(last-first)*2,
+                          comp);
+*   std::__final_insertion_sort(first, last, comp);
+  }
+}
+```
+
+---
+
+## Insertion Sort
+
+Over small subranges, Insertion Sort performs better than Quicksort.
+
+We sort until the size of subranges are < k.
+
+Insertion sort is then `O(k·N)`.
+
+---
+
+class: middle
+
+## `std::nth_element`
+
+---
+
+```C++
+template<typename RandIt>
+  inline void
+  nth_element(RandIt first, RandIt nth,
+              RandIt last)
+{
+  if (first == last || nth == last)
+    return;
+
+* std::__introselect(first, nth, last,
+*            std::__lg(last - first) * 2,
+*            __gnu_cxx::__ops::__iter_less_iter());
+}
+```
+
+---
+
+## Introselect
+
+* Quickselect up to `2 * log(N)` recursions.
+
+* Then Heapselect.
+
+---
+
+## Nth Element
+
+> **Complexity**
+>
+> `O(N)`, where N = std::distance(first, last) *on average*
+
+---
+
+## Quickselect
+
+Simplified Quicksort.
+
+We choose a pivot and we partition like Quicksort.
+
+--
+
+If the pivot ends up at nth position, we are done.
+
+--
+
+Otherwise, we recurse only on the side that contains nth position.
+
+---
+
+## Quickselect
+
+.img-full-size[![Quick Select](img/quick-select.png)]
+
+---
+
+## Quickselect
+
+.img-full-size[![Quick Select](img/quick-select.gif)]
+
+---
+
+## Heapselect
+
+We create a heap on n elements.
+
+--
+
+We iterate on all other elements.
+
+--
+
+If an element is smaller than heap max, we pop the heap and add the new element.
+
+--
+
+Heap max is the nth element at the end.
+
+---
+
+## Heapselect
+
+* O(N·log(k))
+
+* Negligeable memory consumption.
+
+---
+
+class: middle
+
+## `std::partial_sort`
+
+---
+
+## GCC Implementation
+
+```C++
+template<typename RandIt, typename _Compare>
+  inline void
+  __partial_sort(RandIt first,
+                 RandIt middle,
+                 RandIt last,
+                 _Compare comp)
+{
+* std::__heap_select(first, middle, last, comp);
+* std::__sort_heap(first, middle, comp);
+}
+```
+
+---
+
+## Partial sort
+
+We said that heapsort was slower than quicksort.
+
+Heapselect is `O(N·log(k))` when quickselect is `O(N)`.
+
+How come partial_sort can sometimes perform better than quickselect + quicksort?!
+
+---
+
+## Heapselect benchmark
+
+* 1.000.000 elements
+
+* We vary the position we are searching
+
+---
+
+## Heapselect benchmark
+
+.img-full-size[![Heapselect](img/heap-select.png)]
+
+<!-- http://quick-bench.com/MDTKCR1zyjDh-pNENO0NI0JOG1Y -->
+
+---
+
+## Heapselect measure
+
+.img-full-size[![Heapselect](img/partial-custom.png)]
+
+---
+
+## Partial sort
+
+* Heapselect performs better with low `k` value
+
+* Heapselect has bigger complexity.
+
+---
+
+class: middle
+
+## Context of usage
+
+---
+
+## Nth element
+
+Nth element has valid use-cases for any value of `k`.
+
+First decile, last decile, median...
+
+The STL implementers chose a `O(N)` algorithm that doesn't depend on `k`.
+
+---
+
+## Partial Sort
+
+The typical usage of `std::partial_sort` is to sort a small subset of elements in a big container.
+
+The STL implementers chose a faster `O(N·log(k))` algorithm that performs well for this typical use-case at the expense of other scenarios.
+
+---
+
+class: middle
+
+Despite the fact that the STL is generic, some choices have to be made.
+
+In this case, algorithms are fine-tuned for their typical use cases.
+
+---
+
+class: middle
+
+The STL implementers knew what they were doing!
+
+And now we do too!
+
+---
+
+layout: false
+class: center, middle
+
+# A Little Order!
+
+## Delving into the STL sorting algorithms
+
+.name[Fred Tingaud]
+.twitter[@FredTingaudDev]
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+          ratio: '16:9',
+          highlightStyle: 'monokai',
+          highlightLanguage: 'C++',
+          highlightLines: true,
+          highlightSpans: true,
+          slideNumberFormat: (current, total) => `<div class="slide-number">${current}</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: ${current/total*100}%">
+          </div>
+        </div>
+      `
+        });
+    </script>
+  </body>
+</html>
