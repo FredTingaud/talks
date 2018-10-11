@@ -75,6 +75,19 @@
         background-color: rgba(150, 130, 100, 0.7);
         padding: 0px 2px 0px 2px;
       }
+      @page {
+        size: 1210px 681px;
+        margin: 0;
+      }
+      @media print {
+        .remark-slide-scaler {
+          width: 100% !important;
+          height: 100% !important;
+          transform: scale(1) !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+      }
     </style>
   </head>
   <body>
