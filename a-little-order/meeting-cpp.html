@@ -75,6 +75,15 @@
       .url {
         color:white;
       }
+      table, th, td {
+        border: 1px solid white;
+      }
+      th, td {
+        padding: 15px;
+      }
+      table {
+        border-spacing: 0px;
+      }
       .remark-code-line-highlighted {
         background-color: rgba(150, 130, 100, 0.7);
       }
@@ -102,6 +111,19 @@
         bottom: 0.5em;
         right: 1em;
         font-size: 70%;
+      }
+      @page {
+        size: 1210px 681px;
+        margin: 0;
+      }
+      @media print {
+        .remark-slide-scaler {
+          width: 100% !important;
+          height: 100% !important;
+          transform: scale(1) !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
       }
     </style>
   </head>
@@ -153,12 +175,48 @@ BENCHMARK(StringCopy);
 
 ## Google Benchmark
 ```C++
-static void StringCopy(benchmark::State& state){
-  std::string x(state.range(0), 'x');
+*static void StringCopy(benchmark::State& state){
+  std::string x = "hello";
   for (auto _ : state)
     std::string copy(x);
 }
-BENCHMARK(StringCopy)->Arg(1)->Arg(8)->Arg(1024);
+BENCHMARK(StringCopy);
+```
+
+---
+
+## Google Benchmark
+```C++
+static void StringCopy(benchmark::State& state){
+  std::string x = "hello";
+  for (auto _ : state)
+    std::string copy(x);
+}
+*BENCHMARK(StringCopy);
+```
+
+---
+
+## Google Benchmark
+```C++
+static void StringCopy(benchmark::State& state){
+  std::string x = "hello";
+* for (auto _ : state)
+    std::string copy(x);
+}
+BENCHMARK(StringCopy);
+```
+
+---
+
+## Google Benchmark
+```C++
+static void StringCopy(benchmark::State& state){
+* std::string x(state.range(0), 'x');
+  for (auto _ : state)
+    std::string copy(x);
+}
+*BENCHMARK(StringCopy)->Arg(1)->Arg(8)->Arg(1024);
 ```
 
 ---
@@ -170,7 +228,7 @@ static void StringCopy(benchmark::State& state){
   for (auto _ : state)
     std::string copy(x);
 }
-BENCHMARK(StringCopy)->Range(1, 1024);
+*BENCHMARK(StringCopy)->Range(1, 1024);
 ```
 
 ---
@@ -307,6 +365,22 @@ It should do the same as `std::partial_sort`...
 
 ---
 
+```C++
+static void nth_left_sorted(benchmark::st& st) {
+  auto input = getRandomVect();
+  for (auto _ : st)
+  {
+    std::vector<int> v(input);
+    auto middle = v.begin() + SIZE / 2 + 1;
+    std::nth_element(v.begin(), middle, v.end());
+    std::sort(v.begin(), middle);
+  }
+}
+BENCHMARK(nth_left_sorted);
+```
+
+---
+
 ## Home-cooked partial sort
 
 <!-- http://quick-bench.com/7d6eKuso1-i36VPp4fZ9qGvPtnQ -->
@@ -317,7 +391,7 @@ It should do the same as `std::partial_sort`...
 
 ## Home-cooked partial sort
 
-Did we do better than the STL implementers in 5 minutes and 2 lines of code?
+Did we do better than the STL implementers in 10 minutes and 2 lines of code?
 
 --
 
@@ -398,37 +472,37 @@ Approximately (last-first)log(middle-first)) applications of cmp
 
 ## Read the Standards - Partial Sort
 
-For a median, k = N / 2
-
-`O(N·log(N / 2))`, where N = std::distance(first, last)
-
----
-
-## Read the Standards - Partial Sort
-
-In our case, k = N / 2
-
-`O(N·(log(N) - log(2))`, where N = std::distance(first, last)
-
----
-
-## Read the Standards - Partial Sort
-
-In our case, k = N / 2
-
-`O(N·log(N) - N·log(2))`, where N = std::distance(first, last)
-
----
-
-## Read the Standards - Partial Sort
-
-In our case, k = N / 2
-
-`O(N·log(N))`, where N = std::distance(first, last)
+`O(N·log(k))`
 
 --
 
-Just like `std::sort`
+For a median, k = N / 2
+
+`O(N·log(N / 2))`
+
+--
+
+`O(N·(log(N) - log(2)))`
+
+--
+
+`O(N·log(N) - N·log(2))`
+
+---
+
+## Read the Standards - Partial Sort
+
+`O(N·log(k))`
+
+For a median, k = N / 2
+
+`O(N·log(N / 2))`
+
+`O(N·(log(N) - log(2)))`
+
+`O(N·log(N) - `~~` N·log(2)`~~`)`
+
+`O(N·log(N))`
 
 ---
 
@@ -436,9 +510,9 @@ Just like `std::sort`
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
-k = 10
+`O(N·log(k))` with k = 10
 
-`O(N·log(10))`, where N = std::distance(first, last)
+`O(N·log(10))`
 
 ---
 
@@ -446,15 +520,13 @@ k = 10
 
 If we want to sort the 10 best scores in a MMO scoreboard.
 
-k = 10
+`O(N·log(k))` with k = 10
 
-`O(N)`, where N = std::distance(first, last)
+`O(N·`~~`log(10))`~~
 
----
+--
 
-## Read the Standards - Partial Sort
-
-`O(N)`, now, THAT is a better complexity.
+`O(N)`
 
 ---
 
@@ -464,7 +536,11 @@ The contract of Nth Element
 
 `O(N)`, where N = std::distance(first, last) *on average*
 
-So for the full algorithm
+--
+
+Then we sort the first k elements.
+
+--
 
 `O(N + k·log(k))`
 
@@ -479,6 +555,34 @@ When k = N / 2
 When k = 10
 
 `O(N + 10·log(10))` = `O(N)`
+
+---
+
+# Read the Standards
+
+<table style="width:100%">
+  <tr>
+    <td></td>
+    <td>k = N/2</td>
+    <td>k = 10</td>
+  </tr>
+  <tr>
+    <td>std::sort</td>
+    <td>O(N·log(N))</td>
+    <td>O(N·log(N))</td>
+  </tr>
+  <tr>
+    <td>std::partial_sort</td>
+    <td>O(N·log(N))</td>
+    <td>O(N)</td>
+  </tr>
+  <tr>
+    <td>custom</td>
+    <td>O(N·log(N))</td>
+    <td>O(N)</td>
+  </tr>
+</table>
+
 
 ---
 
@@ -668,7 +772,8 @@ Why is it slower for higher values?
 
 class: middle
 
-## Let's review some famous algorithms
+## It's dangerous to go alone!
+## Take these.
 
 ---
 
@@ -692,7 +797,19 @@ class: middle
 
 ## Insertion Sort
 
-.img[![Insertion Sort](img/insert-four.gif)]
+.img[![Insertion Sort](img/insert-five-0.png)]
+
+---
+
+## Insertion Sort
+
+.img[![Insertion Sort](img/insert-five-1.png)]
+
+---
+
+## Insertion Sort
+
+.img[![Insertion Sort](img/insert-five-2.png)]
 
 ---
 
@@ -726,11 +843,24 @@ class: middle
 
 .img[![Quicksort](img/quick-sort1.png)]
 
+
+---
+
+## Quicksort
+
+.img[![Quicksort](img/quick-sort2.png)]
+
 ---
 
 ## Quicksort
 
 .img[![Quicksort](img/quick-sort2.gif)]
+
+---
+
+## Quicksort
+
+.img[![Quicksort](img/quick-sort3.png)]
 
 ---
 
@@ -742,15 +872,33 @@ class: middle
 
 ## Quicksort
 
+* log(N) iterations *on average*
+
 * `O(N·log(N))` *on average*
 
 * Quick
 
 * Negligeable memory consumption
 
---
+---
 
-* `O(N²)` on worst case scenario
+## Quicksort
+
+.img[![Quicksort](img/quick-sort-bad1.png)]
+
+---
+
+## Quicksort
+
+.img[![Quicksort](img/quick-sort-bad.gif)]
+
+---
+
+## Quicksort
+
+* N iterations on worst case scenario
+
+* `O(N²)`
 
 ---
 
@@ -774,13 +922,37 @@ class: middle
 
 ## Heap - Insert
 
-.img[![Heapsort](img/heap2.gif)]
+.img[![Heapsort](img/heap-insert.gif)]
+
+---
+
+## Heap - Insert
+
+.img[![Heapsort](img/heap-insert1.png)]
+
+---
+
+## Heap - Insert
+
+.img[![Heapsort](img/heap-insert2.gif)]
 
 ---
 
 ## Heap - Pop
 
-.img[![Heapsort](img/heap3.gif)]
+.img[![Heapsort](img/heap-pop.gif)]
+
+---
+
+## Heap - Pop
+
+.img[![Heapsort](img/heap-pop.png)]
+
+---
+
+## Heap - Pop
+
+.img[![Heapsort](img/heap-pop2.gif)]
 
 ---
 
@@ -800,7 +972,7 @@ class: middle
 
 ## Heapsort
 
-.img[![Heapsort](img/heap5.gif)]
+.img[![Heapsort](img/heap-sort.gif)]
 
 ---
 
