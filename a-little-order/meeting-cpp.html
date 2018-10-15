@@ -548,13 +548,59 @@ Then we sort the first k elements.
 
 ## Read the Standards - Nth Element + Sort
 
-When k = N / 2
+`O(N + k·log(k))`
 
-`O(N + N/2·log(N/2))` = `O(N·log(N))`
+With k = N / 2
 
-When k = 10
+`O(N + N/2·log(N/2))`
 
-`O(N + 10·log(10))` = `O(N)`
+---
+
+## Read the Standards - Nth Element + Sort
+
+`O(N + k·log(k))`
+
+With k = N / 2
+
+`O(N + N`~~`/2`~~`·log(N`~~`/2`~~`))`
+
+`O(N + N·log(N))`
+
+---
+
+## Read the Standards - Nth Element + Sort
+
+`O(N + k·log(k))`
+
+With k = N / 2
+
+`O(N + N`~~`/2`~~`·log(N`~~`/2`~~`))`
+
+`O(`~~`N`~~` + N·log(N))`
+
+`O(N·log(N))`
+
+---
+
+## Read the Standards - Nth Element + Sort
+
+`O(N + k·log(k))`
+
+With k = 10
+
+`O(N + 10·log(10))`
+
+---
+
+## Read the Standards - Nth Element + Sort
+
+`O(N + k·log(k))`
+
+With k = 10
+
+`O(N`~~` + 10·log(10)`~~`)`
+
+`O(N)`
 
 ---
 
@@ -582,7 +628,6 @@ When k = 10
     <td>O(N)</td>
   </tr>
 </table>
-
 
 ---
 
@@ -920,6 +965,12 @@ class: middle
 
 ---
 
+## Heap
+
+Fast insertion: `log(N)`
+
+---
+
 ## Heap - Insert
 
 .img[![Heapsort](img/heap-insert.gif)]
@@ -938,6 +989,12 @@ class: middle
 
 ---
 
+## Heap
+
+Fast Pop: `log(N)`
+
+---
+
 ## Heap - Pop
 
 .img[![Heapsort](img/heap-pop.gif)]
@@ -953,6 +1010,12 @@ class: middle
 ## Heap - Pop
 
 .img[![Heapsort](img/heap-pop2.gif)]
+
+---
+
+## Heap
+
+Flat representation
 
 ---
 
@@ -1033,6 +1096,12 @@ template<typename RandIt, typename _Compare>
   }
 }
 ```
+
+---
+
+## Introsort
+
+?
 
 ---
 
@@ -1122,14 +1191,6 @@ template<typename RandIt>
 * Quickselect up to `2 * log(N)` recursions.
 
 * Then Heapselect.
-
----
-
-## Nth Element
-
-> **Complexity**
->
-> `O(N)`, where N = std::distance(first, last) *on average*
 
 ---
 
