@@ -372,8 +372,8 @@ static void nth_left_sorted(benchmark::st& st) {
   {
     std::vector<int> v(input);
     auto middle = v.begin() + SIZE / 2 + 1;
-    std::nth_element(v.begin(), middle, v.end());
-    std::sort(v.begin(), middle);
+*   std::nth_element(v.begin(), middle, v.end());
+*   std::sort(v.begin(), middle);
   }
 }
 BENCHMARK(nth_left_sorted);
@@ -392,14 +392,6 @@ BENCHMARK(nth_left_sorted);
 ## Home-cooked partial sort
 
 Did we do better than the STL implementers in 10 minutes and 2 lines of code?
-
---
-
-Probably not...
-
---
-
-Let's try to understand why!
 
 ---
 
@@ -795,15 +787,15 @@ k = N / 5
 
 ## Measure Size Variation
 
-We have an actual difference!
+Difference
 
 ---
 
 ## When to use `std::partial_sort`
 
-Use `partial_sort` when sorting a subset that is considerably smaller than the whole container.
+`partial_sort` -> small `k`
 
-Otherwise, use `nth_element + sort`.
+`nth_element + sort` -> otherwise
 
 ---
 
