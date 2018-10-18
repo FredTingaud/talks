@@ -63,6 +63,16 @@
       .img-small-size img {
         width: 25%;
       }
+      .img-right-1 {
+        position:absolute;
+        right:2em;
+        top: 5em;
+      }
+      .img-right-2 {
+        position:absolute;
+        right:2em;
+        top: 11em;
+      }
       .gold {
         color: gold;
       }
@@ -399,7 +409,6 @@ class: middle
 
 # Check the contract!
 
-
 ---
 
 # Read the Standards
@@ -410,9 +419,10 @@ class: middle
 
 ---
 
-## Read the Standards - Sort
+## Read the Standards
 
-.img-full-height[![cppreference](img/cppreference.png)]
+.img[![Complexities](img/complexity.png)]
+
 
 ---
 
@@ -480,6 +490,10 @@ For a median, k = N / 2
 
 `O(N·log(N) - N·log(2))`
 
+.img-right-1[![O(N)](img/ON.png)]
+
+.img-right-2[![O(N·log(N))](img/ONlogN.png)]
+
 ---
 
 ## Read the Standards - Partial Sort
@@ -495,6 +509,10 @@ For a median, k = N / 2
 `O(N·log(N) - `~~` N·log(2)`~~`)`
 
 `O(N·log(N))`
+
+.img-right-1[![O(N)](img/ON.png)]
+
+.img-right-2[![O(N·log(N))](img/ONlogN.png)]
 
 ---
 
@@ -669,7 +687,7 @@ class: middle
 
 ## Comparing implementations
 
-Same results for all implementations of the libc++.
+No differences
 
 ---
 
@@ -689,7 +707,6 @@ class: middle
 
 ## Measure Size Variation
 
-We are sorting a subset inside a container.
 
 * Subset size may vary.
 
@@ -709,7 +726,7 @@ We are sorting a subset inside a container.
 
 * 1,000,000 elements
 
-* We vary the number of elements we sort in it
+* Subset varies
 
 ---
 
@@ -745,9 +762,9 @@ Zoomed
 
 ## Measure Size Variation - Container
 
-* We sort 100 elements
+* 100 elements sorted
 
-* We vary the size of the full container
+* Container size varies
 
 ---
 
@@ -769,9 +786,9 @@ k = 100
 
 ## Measure Size Variation - Both
 
-* We sort 1/5th of the elements
+* 1/5th of the elements sorted
 
-* We vary the size of the container
+* Container size varies
 
 ---
 
@@ -858,7 +875,7 @@ class: middle
 
 ## Insertion Sort
 
-* `O(n²)`
+* `O(N²)`
 
 * Negligeable memory consumption
 
@@ -866,7 +883,7 @@ class: middle
 
 class: middle
 
-## Do you expect to see *Insertion Sort* in your implementation of `std::sort`?
+## Is *Insertion Sort* in `std::sort`?
 
 ---
 
@@ -941,7 +958,7 @@ class: middle
 
 class: middle
 
-## Do you expect to see *Quick Sort* in your implementation of `std::sort`?
+## Is *Quick Sort* in `std::sort`?
 
 ---
 
@@ -1049,7 +1066,7 @@ Flat representation
 
 class: middle
 
-## Do you expect to see *Heap Sort* in your implementation of `std::sort`?
+## Is *Heap Sort* in `std::sort`?
 
 ---
 
@@ -1109,9 +1126,9 @@ template<typename RandIt, typename _Compare>
 
 ## Introsort
 
-* Quicksort is very fast for most scenarios, but it can become `O(N²)` on worst-case scenarios.
+* Quicksort -> very fast but `O(N²)` on worst-case scenarios
 
-* Heapsort is always `O(N·log(N))` but it takes 4-5 times longer to sort typical scenario.
+* Heapsort -> `O(N·log(N))` but slower
 
 --
 
@@ -1123,7 +1140,7 @@ Introsort does BOTH!
 
 Quicksort recurses on `2 * log(N)` levels max.
 
-Then Heapsort is called on the rest in case it's still not sorted.
+Then Heapsort on the rest.
 
 `O(N·log(N))` in all cases.
 
@@ -1146,8 +1163,6 @@ template<typename RandIt, typename _Compare>
 ---
 
 ## Insertion Sort
-
-Over small subranges, Insertion Sort performs better than Quicksort.
 
 We sort until the size of subranges are < k.
 
