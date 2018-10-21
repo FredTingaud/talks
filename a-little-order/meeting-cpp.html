@@ -369,9 +369,9 @@ nth_element is 10x faster than sort
 
 ## Home-cooked partial sort
 
-What if we just call `std::sort` on the result of `std::nth_element`?
+`std::sort` on the result of `std::nth_element`
 
-It should do the same as `std::partial_sort`...
+`std::partial_sort`
 
 ---
 
@@ -816,11 +816,11 @@ Difference
 
 ---
 
-## Why?
+class: middle
 
-How is partial_sort faster than nth_element for lower values of k?
+How?
 
-Why is it slower for higher values?
+Why?
 
 ---
 
@@ -1036,9 +1036,9 @@ Flat representation
 
 ## Heapsort
 
-* We build a heap tree inside the container to sort.
+* Build a heap
 
-* Then we extract elements one by one and put them back in the position freed by the heap.
+* Extract elements one by one
 
 ---
 
@@ -1055,12 +1055,6 @@ Flat representation
 * 4 to 5 times slower than quick-sort
 
 * Negligeable memory consumption
-
----
-
-## Heapsort
-
-.img-full-size[![Heapsort vs Quick Sort](img/qsort-heap.png)]
 
 ---
 
@@ -1205,16 +1199,6 @@ template<typename RandIt>
 
 Simplified Quicksort.
 
-We choose a pivot and we partition like Quicksort.
-
---
-
-If the pivot ends up at nth position, we are done.
-
---
-
-Otherwise, we recurse only on the side that contains nth position.
-
 ---
 
 ## Quickselect
@@ -1231,19 +1215,7 @@ Otherwise, we recurse only on the side that contains nth position.
 
 ## Heapselect
 
-We create a heap on n elements.
-
---
-
-We iterate on all other elements.
-
---
-
-If an element is smaller than heap max, we pop the heap and add the new element.
-
---
-
-Heap max is the nth element at the end.
+A heap of n elements.
 
 ---
 
@@ -1280,11 +1252,11 @@ template<typename RandIt, typename _Compare>
 
 ## Partial sort
 
-We said that heapsort was slower than quicksort.
+Partial sort == Heapselect + Heapsort
 
-Heapselect is `O(N·log(k))` when quickselect is `O(N)`.
+Heapsort is slower than quicksort!
 
-How come partial_sort can sometimes perform better than quickselect + quicksort?!
+Heapselect is `O(N·log(k))` when quickselect is `O(N)`!
 
 ---
 
@@ -1304,12 +1276,6 @@ How come partial_sort can sometimes perform better than quickselect + quicksort?
 
 ---
 
-## Heapselect measure
-
-.img-full-size[![Heapselect](img/partial-custom.png)]
-
----
-
 ## Partial sort
 
 * Heapselect performs better with low `k` value
@@ -1326,27 +1292,25 @@ class: middle
 
 ## Nth element
 
-Nth element has valid use-cases for any value of `k`.
-
 First decile, last decile, median...
 
-The STL implementers chose a `O(N)` algorithm that doesn't depend on `k`.
+`O(N)` doesn't depend on `k`.
 
 ---
 
 ## Partial Sort
 
-The typical usage of `std::partial_sort` is to sort a small subset of elements in a big container.
+100 best players, 10 best pageranks...
 
-The STL implementers chose a faster `O(N·log(k))` algorithm that performs well for this typical use-case at the expense of other scenarios.
+Performant `O(N·log(k))` at the expense of complexity.
 
 ---
 
 class: middle
 
-Despite the fact that the STL is generic, some choices have to be made.
+STL is generic, but some choices have to be made.
 
-In this case, algorithms are fine-tuned for their typical use cases.
+Algorithms are fine-tuned for their typical use cases.
 
 ---
 
