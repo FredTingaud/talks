@@ -283,6 +283,54 @@ BENCHMARK(sorted);
 
 ---
 
+## std::sort
+
+```C++
+static void sorted(benchmark::State& state) {
+* auto input = getRandomVect();
+  for (auto _ : state)
+  {
+    std::vector<int> values(input);
+    std::sort(values.begin(), values.end());
+  }
+}
+BENCHMARK(sorted);
+```
+
+---
+
+## std::sort
+
+```C++
+static void sorted(benchmark::State& state) {
+  auto input = getRandomVect();
+  for (auto _ : state)
+  {
+    std::vector<int> values(input);
+*   std::sort(values.begin(), values.end());
+  }
+}
+BENCHMARK(sorted);
+```
+
+---
+
+## std::sort
+
+```C++
+static void sorted(benchmark::State& state) {
+  auto input = getRandomVect();
+  for (auto _ : state)
+  {
+*   std::vector<int> values(input);
+    std::sort(values.begin(), values.end());
+  }
+}
+BENCHMARK(sorted);
+```
+
+---
+
 ## Unsorted
 
 ```C++
@@ -292,6 +340,22 @@ static void unsorted(benchmark::State& state) {
   {
     std::vector<int> values(input);
     benchmark::DoNotOptimize(values);
+  }
+}
+BENCHMARK(unsorted);
+```
+
+---
+
+## Unsorted
+
+```C++
+static void unsorted(benchmark::State& state) {
+  auto input = getRandomVect();
+  for (auto _ : state)
+  {
+    std::vector<int> values(input);
+*   benchmark::DoNotOptimize(values);
   }
 }
 BENCHMARK(unsorted);
