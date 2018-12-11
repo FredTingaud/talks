@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Large Scale Refactoring</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+         font-family: 'Droid Serif';
+         color: #ccc;
+      }
+      .remark-slide-content {
+         background: #272822;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        font-size: 500%;
+         color: #fff;
+      }
+      .remark-code, .remark-inline-code {
+         font-family: 'Ubuntu Mono';
+         font-size:100%;
+         background-color: #373832 !important;
+      }
+      .remark-slide-content { font-size: 220%; }
+      .remark-slide-content h1 { font-size: 250%; }
+      .remark-slide-content h2 { font-size: 180%; }
+      .remark-slide-content h3 { font-size: 180%; }
+      .name {
+        position:absolute;
+        bottom: 80px;
+        left: 50px;
+        font-size: 100%;
+        color: #bbb
+      }
+      .twitter {
+        position:absolute;
+        bottom: 80px;
+        font-size: 80%;
+        right: 3em;
+        color: #bbb
+      }
+      .footnote {
+        position:absolute;
+        bottom: 0.2em;
+        left: 14em;
+        font-size: 60%;
+        color: #bbb
+      }
+      .img-full-size img {
+        width:80%;
+      }
+      .img-full-width img {
+        width:100%;
+      }
+      .img-full-height img {
+        width:40%;
+      }
+      .img-half-size img {
+        width:40%;
+      }
+      .img-small-size img {
+        width: 25%;
+      }
+      .img-right-1 {
+        position:absolute;
+        right:2em;
+        top: 5em;
+      }
+      .img-right-2 {
+        position:absolute;
+        right:2em;
+        top: 11em;
+      }
+      .gold {
+        color: gold;
+      }
+      .version {
+        color: LightSkyBlue;
+      }
+      .boilerplate {
+        color: grey;
+      }
+      .url {
+        color:white;
+      }
+      table, th, td {
+        border: 1px solid white;
+      }
+      th, td {
+        padding: 15px;
+      }
+      table {
+        border-spacing: 0px;
+      }
+      .container{
+        display: flex;
+        line-height: 1.5;
+      }
+      .col{
+        flex: 1;
+      }
+      .col0{
+        flex: 0.4;
+      }
+      .remark-code-line-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+      }
+      .remark-code-span-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+        padding: 0px 2px 0px 2px;
+      }
+      .remark-slide-number {
+        position: inherit;
+      }
+      .remark-slide-number .progress-bar-container {
+        position: absolute;
+        bottom: 0;
+        height: 4px;
+        display: block;
+        left: 0;
+        right: 0;
+      }
+      .remark-slide-number .progress-bar {
+        height: 100%;
+        background-color: cyan;
+      }
+      .slide-number {
+        position:absolute;
+        bottom: 0.5em;
+        right: 1em;
+        font-size: 70%;
+      }
+      @page {
+        size: 1210px 681px;
+        margin: 0;
+      }
+      @media print {
+        .remark-slide-scaler {
+          width: 100% !important;
+          height: 100% !important;
+          transform: scale(1) !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Large Scale Refactoring With Clang
+
+.name[Fred Tingaud]
+.twitter[@FredTingaudDev]
+
+---
+
+layout: true
+
+.center[.footnote[Fred Tingaud - @FredTingaudDev - CPPFRUG]]
+
+---
+
+class:center
+
+.img-full-height[![Vacuum Cleaner](img/vacuum.jpg)]
+
+---
+
+## Better Tooling
+
+.center[Continuous tooling improvement
+
+⇓
+
+Discontinuous UX improvement]
+
+---
+
+## Better Tooling
+
+Discontinuities
+
+* Hard to predict
+
+* Hard to sell
+
+---
+
+## The Boyscout Rule
+
+> Always leave the code better than you found it.   
+
+--
+
+Rename unclear functions and variables
+
+Remove raw loops
+
+Simplify the code
+
+---
+
+## The Boyscout Rule
+
+* Powerful on frequently changing areas
+
+* Part of the "Business As Usual"
+
+* Easy to merge
+
+---
+
+## The Boyscout Rule
+
+* Nobody clean interfaces
+
+* Nobody does dangerous refactoring
+
+* No multi-step refactoring
+
+---
+
+class: center, middle
+
+## Clang Tidy
+
+---
+
+## Clang Tidy
+
+> clang-tidy is a clang-based C++ “linter” tool.
+
+> Its detects some typical programming errors (style violations, interface misuse, or bugs) via static analysis.
+
+---
+
+## Clang Tidy
+
+```
+for (vector<int>::iterator it = v.begin()
+    ; it != v.end()
+    ; ++it)
+  cout << *it;
+```
+
+becomes
+
+```
+for (auto & elem : v)
+  cout << elem;
+```
+
+---
+
+```
+void f(int x) {
+  std::auto_ptr<int> a(new int(x));
+  std::auto_ptr<int> b;
+  b = a;
+  take_ownership_fn(b);
+}
+/* becomes */
+void f(int x) {
+  std::unique_ptr<int> a(new int(x));
+  std::unique_ptr<int> b;
+  b = std::move(a);
+  take_ownership_fn(std::move(b));
+}
+```
+
+---
+
+## Clang Tidy
+
+> clang-tidy is modular and provides a convenient interface for writing new checks.
+
+---
+
+## Clang
+
+<div class="container">
+<div class="col">
+.right[Objective C
+<br>
+C++
+<br>
+C]
+</div>
+
+<div class="col0">
+.center[⇘
+<br>
+⇒
+<br>
+⇗]
+</div>
+<div class="col">
+.center[
+<br>
+AST ⇒ IR
+<br>]
+</div>
+
+<div class="col0">
+.center[⇗
+<br>
+⇒
+<br>
+⇘]
+</div>
+
+<div class="col">
+.left[x86_64
+<br>
+arm
+<br>
+thumb]
+</div>
+
+</div>
+
+---
+
+```
+void func(int);
+
+void iLoveClang() {
+  int a = 42;
+  func(a);
+}
+```
+
+.img-full-width[![AST example](img/ast.png)]
+
+---
+
+## Clang
+
+<div class="container">
+<div class="col">
+.right[Objective C
+<br>
+C++
+<br>
+C]
+</div>
+
+<div class="col0">
+.center[⇘⇖
+<br>
+⇔
+<br>
+⇗⇙]
+</div>
+<div class="col">
+.center[
+<br>
+AST ⇒ IR
+<br>]
+</div>
+
+<div class="col0">
+.center[⇗
+<br>
+⇒
+<br>
+⇘]
+</div>
+
+<div class="col">
+.left[x86_64
+<br>
+arm
+<br>
+thumb]
+</div>
+
+</div>
+
+---
+
+## Clang Tidy Custom Rule
+
+```
+if (a && !b) {/* ... */}
+```
+
+vs
+
+```
+if (a and !b) {/* ... */}
+```
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName("&&"))
+         .bind("operator")
+      , this);
+}
+```
+
+---
+
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+   auto op = R.Nodes.getNodeAs<BinaryOperator>(
+      "operator");
+   auto Diag = diag(R, op->getOperatorLoc(),
+      "'&&' can be replaced by 'and'");
+   Diag << FixItHint::CreateReplacement(
+      op->getOperatorLoc(), "and");
+}
+```
+
+---
+
+## My experience
+
+Maintain UI API in a big software.
+
+All parts of the code might call us.
+
+First lines of code written > 30 years ago.
+
+---
+
+## Dead parameters
+
+```
+void displaySomething(std::string const& name,
+                      T1 param1,
+                      T2 unused,
+                      T3 param3);
+```
+
+Easy to clean?
+
+---
+
+## Dead parameters
+
+Clang tidy rule = 50 LOC
+
+---
+
+## Magic Numbers
+
+```C++
+/**
+ * \returns 0 if no error was encountered
+ * 1 otherwise.
+ */
+virtual int UIClass::initializeScreen(int input)
+```
+
+---
+
+```C++
+int UIClass::initializeScreen(int input)
+{
+  int result = 0;
+  if (treatInput(input))
+    return 1;
+  if (input > 0)
+    result = input < 10
+        ? super::myFunction(input)
+        : 1;
+  return result;
+}
+```
+
+---
+
+```C++
+int UIClass::initializeScreen(int input)
+{
+  int result = 0;
+  if (treatInput(input))
+*   return 1;
+  if (input > 0)
+    result = input < 10
+        ? super::myFunction(input)
+        : 1;
+* return result;
+}
+```
+
+---
+
+```C++
+int UIClass::initializeScreen(int input)
+{
+* int result = 0;
+  if (treatInput(input))
+    return 1;
+  if (input > 0)
+    result = input < 10
+        ? super::myFunction(input)
+        : 1;
+  return result;
+}
+```
+
+---
+
+```C++
+int UIClass::initializeScreen(int input)
+{
+  int result = 0;
+  if (treatInput(input))
+    return 1;
+  if (input > 0)
+*   result = input < 10
+        ? super::myFunction(input)
+        : 1;
+  return result;
+}
+```
+
+---
+
+```C++
+enum class UIResult {Continue, Stop};
+UIResult UIClass::initializeScreen(int input)
+{
+  UIResult result = UIResult::Continue;
+  if (treatInput(input))
+    return UIResult::Stop;
+  if (input > 0)
+    result = input < 10
+        ? super::myFunction(input)
+        : UIResult::Stop;
+  return result;
+}
+```
+
+---
+
+## Const
+
+```
+void func3(char * c) {
+   std::cout << c << " world!";
+}
+void func2(char * c) {func3(c);}
+void func1() {
+   char * c = "Hello";
+   func2(c);
+}
+```
+
+---
+
+## Const
+
+```
+void func3(const char * c) {
+   std::cout << c << " world!";
+}
+void func2(const char * c) {func3(c);}
+void func1() {
+   const char * c = "Hello";
+   func2(c);
+}
+```
+
+---
+
+## Merging / Integrating
+
+* Can rerun the script on conflicts
+
+* Can back-out and come back later on problem
+
+---
+
+## New Possibilities
+
+Unsolvable problems are solvable
+
+We can refactor *at large scale*
+
+We can *revolutionize* our code!
+
+---
+
+class: center, middle
+
+## 🌈
+## 🦄 Thank you 🦄
+
+---
+
+class: center, middle
+
+## \* *Record scratch* \*
+
+---
+
+## Do you want a revolution?
+
+--
+
+1 huge changelist -> OK
+
+1000 huge changelists -> not OK
+
+---
+
+## Huge changelists
+
+How do you validate that?
+
+How do you get greenlight from other teams?
+
+---
+
+## C++ is HARD!
+
+--
+
+.middle[.center[.img[![Initialization](img/initialize.gif)]]]
+
+---
+
+## C++ is HARD!
+
+So it AST matching!
+
+--
+
+You will trip more than once.
+
+---
+
+## AST matching is hard
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName("&&"))
+         .bind("operator")
+      , this);
+}
+```
+
+--
+
+`&&` and `and` are both caught here.
+
+---
+
+## AST matching is hard
+
+```
+void displaySomething(std::string const& name,
+                      T1 param1,
+                      T2 unused,
+                      T3 param3);
+```
+
+--
+
+```
+#define TRUE 1
+
+void displaySomething("Hello", t1, TRUE, t3);
+```
+
+---
+
+## AST matching is hard
+
+Enum class conversion 
+
+--
+
+Rule doesn't work for templated classes
+
+---
+
+## AST matching is hard
+
+Not really a problem...
+
+--
+
+If you can see it!
+
+---
+
+## Readable pull requests
+
+Just because your rule *can* run on millions of files doesn't mean it *should*.
+
+---
+
+## An incremental approach
+
+```
+void displaySomething(std::string const& name,
+                      T1 param1,
+                      T3 param3);
+
+void displaySomething(std::string const& name,
+                      T1 param1,
+                      T2 unused,
+                      T3 param3)
+{ displaySomething(name, param1, param3); }
+```
+
+---
+
+## An incremental approach
+
+```C++
+/**
+ * \returns 0 if no error was encountered
+ * 1 otherwise.
+ */
+virtual int UIClass::initializeScreen(int input){
+   return static_cast<int>(initializeScreenEnum(int input));
+}
+enum class UIResult {Continue, Stop};
+UIResult UIClass::initializeScreenEnum(int input)
+```
+
+---
+
+## An incremental approach
+
+More work... But worth it
+
+Find the correct pull request size
+
+Automatize
+
+Protect
+
+Finish
+
+---
+
+## Pull Request size
+
+1 PR of 1000 files?
+
+1000 PR of 1 file?
+
+---
+
+## Automatize
+
+MANY
+
+* patches
+
+* pull-requests
+
+* mails
+
+* merges
+
+---
+
+## Protect
+
+What if other teams are undoing your work?
+
+[[deprecated]]
+
+--
+
+Clang-tidy!
+
+---
+
+## Finish
+
+Incremental refactoring temporarily increases complexity
+
+Make sure it is temporary!
+
+---
+
+## Clang Tidy
+
+Will probably not make your life that much easier
+
+It will change your job
+
+And create new possibilities
+
+---
+
+layout: false
+class: center, middle
+
+# Large Scale Refactoring With Clang
+
+.name[Fred Tingaud]
+.twitter[@FredTingaudDev]
+
+---
+
+class: center, middle
+
+## Questions?
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+          ratio: '16:9',
+          highlightStyle: 'monokai',
+          highlightLanguage: 'C++',
+          highlightLines: true,
+          highlightSpans: true,
+          slideNumberFormat: (current, total) => `<div class="slide-number">${current}</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: ${current/total*100}%">
+          </div>
+        </div>
+      `
+        });
+    </script>
+  </body>
+</html>
