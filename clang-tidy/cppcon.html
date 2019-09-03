@@ -58,7 +58,7 @@
         width:100%;
       }
       .img-full-height img {
-        width:40%;
+        height: 550px;
       }
       .img-half-size img {
         width:40%;
@@ -181,13 +181,13 @@ class:center
 
 ⇓
 
-Discontinuous UX improvement]
+Drastic UX disruption]
 
 ---
 
 ## Better Tooling
 
-Discontinuities
+Disruptions
 
 * Hard to predict
 
@@ -225,7 +225,7 @@ Simplify the code
 
 * Nobody does dangerous refactoring
 
-* No multi-step refactoring
+* No wide refactoring
 
 ---
 
@@ -245,7 +245,7 @@ Stop everything and refactor
 
 --
 
-* Tiring
+* Boring
 
 * Hard/Impossible to merge
 
@@ -286,15 +286,17 @@ for (auto & elem : v)
 ```
 void f(int x) {
   std::auto_ptr<int> a(new int(x));
-  std::auto_ptr<int> b;
-  b = a;
+  std::auto_ptr<int> b = a;
   take_ownership_fn(b);
 }
-/* becomes */
+```
+
+becomes
+
+```
 void f(int x) {
   std::unique_ptr<int> a(new int(x));
-  std::unique_ptr<int> b;
-  b = std::move(a);
+  std::unique_ptr<int> b = std::move(a);
   take_ownership_fn(std::move(b));
 }
 ```
@@ -410,6 +412,12 @@ thumb]
 
 ---
 
+class: center, middle
+
+## Clang Tidy Custom Rules
+
+---
+
 ## Clang Tidy Custom Rule
 
 ```
@@ -474,13 +482,36 @@ void displaySomething(std::string const& name,
                       T3 param3);
 ```
 
-Easy to clean?
+---
+
+## Dead parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+ functionDecl(hasName(FUNC_NAME), 
+			  parameterCountIs(PARAM_COUNT))))
+  .bind("function_to_clean"),
+  this);
+}
+```
 
 ---
 
 ## Dead parameters
 
-Clang tidy rule = 50 LOC
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+ auto call = Result.Nodes.getNodeAs<CallExpr>(
+	"function_to_clean");
+ auto Diag = diag(Result, call->getExprLoc(),
+	"Dead parameter");
+ Diag << FixItHint::CreateRemoval(
+	call->getArg(PARAM_INDEX)->getLocation());
+}
+```
 
 ---
 
@@ -577,8 +608,12 @@ UIResult UIClass::initializeScreen(int input)
 
 ---
 
-## Merging / Integrating
+.img-full-height[![AST Reference](img/ast-ref.png)]
 
+---
+
+## Merging / Integrating
+	
 * Can rerun the script on conflicts
 
 * Can back-out and come back later on problem
@@ -614,6 +649,8 @@ class: center, middle
 
 1 huge changelist -> OK
 
+--
+
 1000 huge changelists -> not OK
 
 ---
@@ -622,7 +659,7 @@ class: center, middle
 
 Impossible to validate
 
-Impossible to get greenlight from code owners
+Impossible to review by code owners
 
 ---
 
@@ -659,6 +696,8 @@ virtual void registerMatchers(MatchFinder* Finder)
 --
 
 `&&` and `and` are both caught
+
+--
 
 `bool operator&&(T const&)` is not caught
 
@@ -736,7 +775,7 @@ virtual int UIClass::initializeScreen(int input);
 
 enum class UIResult {Continue, Stop};
 virtual UIResult UIClass::initializeScreenEnum(int input) {
-   return static_cast<UIResult>(initializeScreenEnum(int input));
+   return static_cast<UIResult>(initializeScreen(int input));
 }
 ```
 
@@ -744,15 +783,15 @@ virtual UIResult UIClass::initializeScreenEnum(int input) {
 
 ## An incremental approach
 
-More work... But worth it
+More work...
 
-Find the correct pull request size
+* Find the right pull request size
 
-Automatize
+* Automatize
 
-Protect
+* Protect
 
-Finish
+* Finish
 
 ---
 
@@ -782,6 +821,8 @@ MANY
 
 What if other teams are undoing your work?
 
+--
+
 [[deprecated]]
 
 --
@@ -792,19 +833,19 @@ Clang-tidy!
 
 ## Finish
 
-Incremental refactoring temporarily increases complexity
-
-Make sure it is temporary!
+**Temporary** increased complexity
 
 ---
 
 ## Clang Tidy
 
-Will probably not make your life that much easier
-
-It will change your job
+It might redefine your job
 
 And create new possibilities
+
+Will probably not make your life easier
+
+Requires a sustainable approach
 
 ---
 
