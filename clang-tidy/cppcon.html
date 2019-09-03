@@ -185,16 +185,6 @@ Drastic UX disruption]
 
 ---
 
-## Better Tooling
-
-Disruptions
-
-* Hard to predict
-
-* Hard to sell
-
----
-
 ## The Boyscout Rule
 
 > Always leave the code better than you found it.   
@@ -223,7 +213,11 @@ Simplify the code
 
 * Nobody clean interfaces
 
+--
+
 * Nobody does dangerous refactoring
+
+--
 
 * No wide refactoring
 
@@ -259,9 +253,11 @@ class: center, middle
 
 ## Clang Tidy
 
-> clang-tidy is a clang-based C++ “linter” tool.
+C++ linter tool
 
-> Its detects some typical programming errors (style violations, interface misuse, or bugs) via static analysis.
+Static analysis
+
+Automatic fix
 
 ---
 
@@ -305,7 +301,7 @@ void f(int x) {
 
 ## Clang Tidy
 
-> clang-tidy is modular and provides a convenient interface for writing new checks.
+API for writing new checks
 
 ---
 
@@ -463,13 +459,66 @@ virtual void check(
 
 ---
 
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+*   auto op = R.Nodes.getNodeAs<BinaryOperator>(
+*      "operator");
+   auto Diag = diag(R, op->getOperatorLoc(),
+      "'&&' can be replaced by 'and'");
+   Diag << FixItHint::CreateReplacement(
+      op->getOperatorLoc(), "and");
+}
+```
+
+---
+
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+   auto op = R.Nodes.getNodeAs<BinaryOperator>(
+      "operator");
+*   auto Diag = diag(R, op->getOperatorLoc(),
+*      "'&&' can be replaced by 'and'");
+   Diag << FixItHint::CreateReplacement(
+      op->getOperatorLoc(), "and");
+}
+```
+
+---
+
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+   auto op = R.Nodes.getNodeAs<BinaryOperator>(
+      "operator");
+   auto Diag = diag(R, op->getOperatorLoc(),
+      "'&&' can be replaced by 'and'");
+*   Diag << FixItHint::CreateReplacement(
+*      op->getOperatorLoc(), "and");
+}
+```
+
+---
+
 ## My experience
 
-Maintain UI API in a big software.
+Murex
 
-All parts of the code might call us.
+UI APIs
 
 First lines of code written > 30 years ago.
+
+Many millions LOC
 
 ---
 
