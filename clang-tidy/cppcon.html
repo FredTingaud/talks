@@ -26,6 +26,9 @@
          font-size:100%;
          background-color: #373832 !important;
       }
+	  .small {
+	     font-size:65%;
+	  }
       .remark-slide-content { font-size: 220%; }
       .remark-slide-content h1 { font-size: 250%; }
       .remark-slide-content h2 { font-size: 180%; }
@@ -34,6 +37,13 @@
         position:absolute;
         bottom: 80px;
         left: 50px;
+        font-size: 100%;
+        color: #bbb
+      }
+      .company {
+        position:absolute;
+        bottom: 80px;
+		text-align: center;
         font-size: 100%;
         color: #bbb
       }
@@ -159,6 +169,9 @@ class: center, middle
 ## How to refactor millions of line of code without alienating your colleagues
 
 .name[Fred Tingaud]
+
+.company[Murex]
+
 .twitter[@FredTingaudDev]
 
 ---
@@ -187,7 +200,7 @@ Drastic UX disruption]
 
 ## The Boyscout Rule
 
-> Always leave the code better than you found it.   
+> Always leave the code better than you found it.
 
 --
 
@@ -223,15 +236,15 @@ Simplify the code
 
 ---
 
-## Large Scale Manual Refactoring
+## Golden Boy Refactoring
 
-Get a budget
+Get *unlimited* budget
 
 Stop everything and refactor
 
 ---
 
-## Large Scale Manual Refactoring
+## Golden Boy Refactoring
 
 * Can tackle very complex refactorings
 
@@ -255,9 +268,281 @@ class: center, middle
 
 C++ linter tool
 
+Clang tool
+
 Static analysis
 
 Automatic fix
+
+---
+
+## Clang
+
+<div class="container">
+<div class="col">
+.right[Objective C
+<br>
+C++
+<br>
+C]
+</div>
+
+<div class="col0">
+.center[⇘
+<br>
+⇒
+<br>
+⇗]
+</div>
+<div class="col">
+.center[
+<br>
+AST* ⇒ ✨
+<br>]
+</div>
+
+<div class="col0">
+.center[⇗
+<br>
+⇒
+<br>
+⇘]
+</div>
+
+<div class="col">
+.left[x86_64
+<br>
+arm
+<br>
+thumb]
+</div>
+
+</div>
+
+ *Abstract Syntax Tree
+
+---
+
+```
+int getAnswer()
+{
+    int compute = 2 * 21;
+    return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+*int getAnswer()
+*{
+*   int compute = 2 * 21;
+*   return compute;
+*}
+```
+
+
+.small[<pre><code class="nohighlight">
+*TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+*int getAnswer()
+{
+    int compute = 2 * 21;
+    return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+*`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+*{
+*    int compute = 2 * 21;
+*    return compute;
+*}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+* `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+{
+*    int compute = 2 * 21;
+     return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+*   |-DeclStmt 〈line:2:5, col:25〉
+*   | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+*   |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+*   |     |-IntegerLiteral 〈col:19〉 'int' 2
+*   |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+{
+     int compute = 2 * 21;
+*    return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+*   `-ReturnStmt 〈line:3:5, col:12〉
+*     `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+*       `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+{
+     int compute = 2 * 21;
+     return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl `〈line:1:1, line:4:1〉` line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+## Clang
+
+<div class="container">
+<div class="col">
+.right[Objective C
+<br>
+C++
+<br>
+C]
+</div>
+
+<div class="col0">
+.center[⇘⇖
+<br>
+⇔
+<br>
+⇗⇙]
+</div>
+<div class="col">
+.center[
+<br>
+AST* ⇒ ✨
+<br>]
+</div>
+
+<div class="col0">
+.center[⇗
+<br>
+⇒
+<br>
+⇘]
+</div>
+
+<div class="col">
+.left[x86_64
+<br>
+arm
+<br>
+thumb]
+</div>
+
+</div>
+
+
+ *Abstract Syntax Tree
 
 ---
 
@@ -305,125 +590,34 @@ API for writing new checks
 
 ---
 
-## Clang
-
-<div class="container">
-<div class="col">
-.right[Objective C
-<br>
-C++
-<br>
-C]
-</div>
-
-<div class="col0">
-.center[⇘
-<br>
-⇒
-<br>
-⇗]
-</div>
-<div class="col">
-.center[
-<br>
-AST ⇒ IR
-<br>]
-</div>
-
-<div class="col0">
-.center[⇗
-<br>
-⇒
-<br>
-⇘]
-</div>
-
-<div class="col">
-.left[x86_64
-<br>
-arm
-<br>
-thumb]
-</div>
-
-</div>
-
----
+## Clang Tidy Matcher
 
 ```
-void func(int);
-
-void iLoveClang() {
-  int a = 42;
-  func(a);
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(MY_MATCHER, this);
 }
 ```
 
-.img-full-width[![AST example](img/ast.png)]
-
----
-
-## Clang
-
-<div class="container">
-<div class="col">
-.right[Objective C
-<br>
-C++
-<br>
-C]
-</div>
-
-<div class="col0">
-.center[⇘⇖
-<br>
-⇔
-<br>
-⇗⇙]
-</div>
-<div class="col">
-.center[
-<br>
-AST ⇒ IR
-<br>]
-</div>
-
-<div class="col0">
-.center[⇗
-<br>
-⇒
-<br>
-⇘]
-</div>
-
-<div class="col">
-.left[x86_64
-<br>
-arm
-<br>
-thumb]
-</div>
-
-</div>
-
----
-
-class: center, middle
-
-## Clang Tidy Custom Rules
+```
+virtual void check(
+   const MatchFinder::MatchResult& R) {
+   // React to match
+}
+```
 
 ---
 
 ## Clang Tidy Custom Rule
 
 ```
-if (a && !b) {/* ... */}
+if (a && b) {/* ... */}
 ```
 
 vs
 
 ```
-if (a and !b) {/* ... */}
+if (a and b) {/* ... */}
 ```
 
 ---
@@ -436,6 +630,66 @@ virtual void registerMatchers(MatchFinder* Finder)
    Finder->addMatcher(
       binaryOperator(hasOperatorName("&&"))
          .bind("operator")
+      , this);
+}
+```
+
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      `binaryOperator`(hasOperatorName("&&"))
+         .bind("operator")
+      , this);
+}
+```
+
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(`hasOperatorName`("&&"))
+         .bind("operator")
+      , this);
+}
+```
+
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName(`"&&"`))
+         .bind("operator")
+      , this);
+}
+```
+
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName("&&"))
+         .`bind("operator")`
       , this);
 }
 ```
@@ -465,8 +719,8 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-*   auto op = R.Nodes.getNodeAs<BinaryOperator>(
-*      "operator");
+*  auto op = R.Nodes.getNodeAs<BinaryOperator>(
+*     "operator");
    auto Diag = diag(R, op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
@@ -484,8 +738,8 @@ virtual void check(
 {
    auto op = R.Nodes.getNodeAs<BinaryOperator>(
       "operator");
-*   auto Diag = diag(R, op->getOperatorLoc(),
-*      "'&&' can be replaced by 'and'");
+*  auto Diag = diag(R, op->getOperatorLoc(),
+*     "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
       op->getOperatorLoc(), "and");
 }
@@ -503,8 +757,8 @@ virtual void check(
       "operator");
    auto Diag = diag(R, op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
-*   Diag << FixItHint::CreateReplacement(
-*      op->getOperatorLoc(), "and");
+*  Diag << FixItHint::CreateReplacement(
+*     op->getOperatorLoc(), "and");
 }
 ```
 
@@ -527,7 +781,7 @@ Many millions LOC
 ```
 void displaySomething(std::string const& name,
                       T1 param1,
-                      T2 unused,
+                      `T2 unused`,
                       T3 param3);
 ```
 
@@ -538,7 +792,7 @@ void displaySomething(std::string const& name,
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- functionDecl(hasName(FUNC_NAME), 
+ functionDecl(hasName(FUNC_NAME),
 			  parameterCountIs(PARAM_COUNT))))
   .bind("function_to_clean"),
   this);
@@ -550,15 +804,86 @@ virtual void registerMatchers(MatchFinder* Finder){
 ## Dead parameters
 
 ```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(`callExpr`(callee(
+ functionDecl(hasName(FUNC_NAME),
+			  parameterCountIs(PARAM_COUNT))))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Dead parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(`callee`(
+ functionDecl(hasName(FUNC_NAME),
+			  parameterCountIs(PARAM_COUNT))))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Dead parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+ `functionDecl`(hasName(FUNC_NAME),
+			  parameterCountIs(PARAM_COUNT))))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Dead parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+ functionDecl(`hasName(FUNC_NAME)`,
+			  `parameterCountIs(PARAM_COUNT)`)))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+
+---
+
+## Dead parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+ functionDecl(hasName(FUNC_NAME),
+			  parameterCountIs(PARAM_COUNT))))
+  .`bind("function_to_clean")`,
+  this);
+}
+```
+---
+
+## Dead parameters
+
+```
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
  auto call = Result.Nodes.getNodeAs<CallExpr>(
 	"function_to_clean");
- auto Diag = diag(Result, call->getExprLoc(),
-	"Dead parameter");
+ auto param = call->getArg(PARAM_INDEX);
+ auto Diag = diag(Result, param->getLocation(),
+	"This parameter is useless");
  Diag << FixItHint::CreateRemoval(
-	call->getArg(PARAM_INDEX)->getLocation());
+	param->getLocation());
 }
 ```
 
@@ -662,7 +987,7 @@ UIResult UIClass::initializeScreen(int input)
 ---
 
 ## Merging / Integrating
-	
+
 * Can rerun the script on conflicts
 
 * Can back-out and come back later on problem
@@ -773,7 +1098,7 @@ void displaySomething("Hello", t1, TRUE, t3);
 
 ## AST matching is hard
 
-Enum class conversion 
+Enum class conversion
 
 --
 
