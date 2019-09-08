@@ -64,6 +64,9 @@
       .img-full-size img {
         width:80%;
       }
+      .revolution img {
+        width:60%
+      }
       .img-full-width img {
         width:100%;
       }
@@ -74,7 +77,7 @@
         width:40%;
       }
       .img-small-size img {
-        width: 25%;
+        width: 20%;
       }
       .img-right-1 {
         position:absolute;
@@ -173,6 +176,29 @@ class: center, middle
 .company[Murex]
 
 .twitter[@FredTingaudDev]
+
+???
+
+Does the remote work?
+
+---
+
+class: center, middle
+
+# Clang Based Refactoring
+## How to refactor millions of line of code without alienating your colleagues
+
+.name[Fred Tingaud]
+
+.company[Murex]
+
+.twitter[@FredTingaudDev]
+
+???
+
+I work at Murex, a company that develops software for capital market.
+
+One of the most interesting challenges I deal with is to maintain the code I own when it is strongly tied with a huge codeline.
 
 ---
 
@@ -620,6 +646,14 @@ vs
 if (a and b) {/* ... */}
 ```
 
+???
+
+Rule to replace **double ampersand** with "and"
+
+Change mid-project
+
+r-value references and forwarding references are caught
+
 ---
 
 ## Clang Tidy Matcher
@@ -633,7 +667,6 @@ virtual void registerMatchers(MatchFinder* Finder)
       , this);
 }
 ```
-
 
 ---
 
@@ -649,7 +682,6 @@ virtual void registerMatchers(MatchFinder* Finder)
 }
 ```
 
-
 ---
 
 ## Clang Tidy Matcher
@@ -664,7 +696,6 @@ virtual void registerMatchers(MatchFinder* Finder)
 }
 ```
 
-
 ---
 
 ## Clang Tidy Matcher
@@ -678,7 +709,6 @@ virtual void registerMatchers(MatchFinder* Finder)
       , this);
 }
 ```
-
 
 ---
 
@@ -765,8 +795,6 @@ virtual void check(
 ---
 
 ## My experience
-
-Murex
 
 UI APIs
 
@@ -869,6 +897,7 @@ virtual void registerMatchers(MatchFinder* Finder){
   this);
 }
 ```
+
 ---
 
 ## Dead parameters
@@ -877,13 +906,85 @@ virtual void registerMatchers(MatchFinder* Finder){
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
- auto call = Result.Nodes.getNodeAs<CallExpr>(
-	"function_to_clean");
- auto param = call->getArg(PARAM_INDEX);
- auto Diag = diag(Result, param->getLocation(),
-	"This parameter is useless");
- Diag << FixItHint::CreateRemoval(
-	param->getLocation());
+  auto call = Result.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+  auto param = call->getArg(PARAM_INDEX);
+  auto Diag = diag(Result, param->getLocation(),
+ 	"This parameter is useless");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Dead parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+* auto call = Result.Nodes.getNodeAs<CallExpr>(
+*	"function_to_clean");
+  auto param = call->getArg(PARAM_INDEX);
+  auto Diag = diag(Result, param->getLocation(),
+ 	"This parameter is useless");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Dead parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+  auto call = Result.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+* auto param = call->getArg(PARAM_INDEX);
+  auto Diag = diag(Result, param->getLocation(),
+ 	"This parameter is useless");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Dead parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+  auto call = Result.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+  auto param = call->getArg(PARAM_INDEX);
+* auto Diag = diag(Result, param->getLocation(),
+*	"This parameter is useless");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Dead parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+  auto call = Result.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+  auto param = call->getArg(PARAM_INDEX);
+  auto Diag = diag(Result, param->getLocation(),
+ 	"This parameter is useless");
+* Diag << FixItHint::CreateRemoval(
+*	param->getLocation());
 }
 ```
 
@@ -982,10 +1083,6 @@ UIResult UIClass::initializeScreen(int input)
 
 ---
 
-.img-full-height[![AST Reference](img/ast-ref.png)]
-
----
-
 ## Merging / Integrating
 
 * Can rerun the script on conflicts
@@ -1006,8 +1103,9 @@ We can *revolutionize* our code!
 
 class: center, middle
 
-## 🌈
-## 🦄 Thank you 🦄
+.revolution[![Unicorns](img/unicorns.jpg)]
+
+## 🌈 Thank you 🦄
 
 ---
 
@@ -1017,15 +1115,15 @@ class: center, middle
 
 ---
 
-## Do you want a revolution of your code?
+## Do you want a revolution?
 
---
+.center[.revolution[![Revolution](img/revolution1.jpg)]]
 
-1 huge changelist -> OK
+---
 
---
+## Do you want a revolution?
 
-1000 huge changelists -> not OK
+.center[.img-small-size[![Guillotine](img/revolution2.jpg)]]
 
 ---
 
@@ -1075,6 +1173,10 @@ virtual void registerMatchers(MatchFinder* Finder)
 
 `bool operator&&(T const&)` is not caught
 
+???
+
+overriden and operators are different nodes because they don't have short-circuit evaluation.
+
 ---
 
 ## AST matching is hard
@@ -1089,9 +1191,43 @@ void displaySomething(std::string const& name,
 --
 
 ```
-#define TRUE 1
+#define FALSE 0
 
-void displaySomething("Hello", t1, TRUE, t3);
+void displaySomething("Hello", t1, FALSE, t3);
+```
+
+---
+
+## AST matching is hard
+
+```
+void displaySomething(std::string const& name,
+                      T1 param1,
+                      T2 unused,
+                      T3 param3);
+```
+
+```
+#define FALSE `0`
+
+void displaySomething("Hello", t1, FALSE, t3);
+```
+
+---
+
+## AST matching is hard
+
+```
+void displaySomething(std::string const& name,
+                      T1 param1,
+                      T2 unused,
+                      T3 param3);
+```
+
+```
+#define FALSE 
+
+void displaySomething("Hello", t1, FALSE, t3);
 ```
 
 ---
@@ -1117,6 +1253,10 @@ If you can see it!
 ---
 
 ## Readable pull requests
+
+.center[.middle[.img[![could, not should](img/jurassic.jpg)]]]
+
+???
 
 Just because your rule *can* run on millions of files doesn't mean it *should*.
 
@@ -1159,17 +1299,9 @@ virtual UIResult UIClass::initializeScreenEnum(int input) {
 
 More work...
 
-* Find the right pull request size
-
-* Automatize
-
-* Protect
-
-* Finish
-
 ---
 
-## Pull Request size
+## Find the right pull request size
 
 1 PR of 1000 files?
 
@@ -1198,6 +1330,10 @@ What if other teams are undoing your work?
 --
 
 [[deprecated]]
+
+???
+
+deprecated attribute
 
 --
 
