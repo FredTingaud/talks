@@ -169,7 +169,7 @@
 class: center, middle
 
 # Clang Based Refactoring
-## How to refactor millions of line of code without alienating your colleagues
+## How to refactor millions of lines of code without alienating your colleagues
 
 .name[Fred Tingaud]
 
@@ -186,7 +186,7 @@ Does the remote work?
 class: center, middle
 
 # Clang Based Refactoring
-## How to refactor millions of line of code without alienating your colleagues
+## How to refactor millions of lines of code without alienating your colleagues
 
 .name[Fred Tingaud]
 
@@ -196,9 +196,9 @@ class: center, middle
 
 ???
 
-I work at Murex, a company that develops software for capital market.
-
 One of the most interesting challenges I deal with is to maintain the code I own when it is strongly tied with a huge codeline.
+
+How do I maintain it well? How do I refactor it? How do I clean it?
 
 ---
 
@@ -226,15 +226,15 @@ Drastic UX disruption]
 
 ## The Boyscout Rule
 
-> Always leave the code better than you found it.
+*Always leave the code better than you found it.*
 
 --
 
-Rename unclear functions and variables
+* Rename unclear functions and variables
 
-Remove raw loops
+* Remove raw loops
 
-Simplify the code
+* Simplify the code
 
 ---
 
@@ -250,23 +250,21 @@ Simplify the code
 
 ## The Boyscout Rule
 
-* Nobody clean interfaces
+But, not convenient for:
 
---
+* widely used APIs
 
-* Nobody does dangerous refactoring
+* risky refactorings
 
---
-
-* No wide refactoring
+* coordinated refactorings
 
 ---
 
 ## Golden Boy Refactoring
 
-Get *unlimited* budget
+* Get "unlimited" budget
 
-Stop everything and refactor
+* Stop everything and refactor
 
 ---
 
@@ -276,11 +274,17 @@ Stop everything and refactor
 
 * Can lead to great improvements
 
---
+---
 
-* Boring
+## Golden Boy Refactoring
 
-* Hard/Impossible to merge
+But...
+
+* Repetitive
+
+* Error prone
+
+* Time critical
 
 ---
 
@@ -340,7 +344,7 @@ AST* ⇒ ✨
 <br>
 arm
 <br>
-thumb]
+...]
 </div>
 
 </div>
@@ -562,7 +566,7 @@ AST* ⇒ ✨
 <br>
 arm
 <br>
-thumb]
+...]
 </div>
 
 </div>
@@ -612,7 +616,7 @@ void f(int x) {
 
 ## Clang Tidy
 
-API for writing new checks
+C++ API for writing new checks
 
 ---
 
@@ -631,6 +635,16 @@ virtual void check(
    // React to match
 }
 ```
+
+---
+
+.img-full-height[![AST Reference](img/ast-ref.png)]
+
+---
+
+## Clang Tidy Matcher
+
+.img-full-width[![Branching AST matchers](img/ast-matchers.png)]
 
 ---
 
@@ -663,7 +677,7 @@ virtual void registerMatchers(MatchFinder* Finder)
 {
    Finder->addMatcher(
       binaryOperator(hasOperatorName("&&"))
-         .bind("operator")
+         .bind("my_op")
       , this);
 }
 ```
@@ -677,7 +691,7 @@ virtual void registerMatchers(MatchFinder* Finder)
 {
    Finder->addMatcher(
       `binaryOperator`(hasOperatorName("&&"))
-         .bind("operator")
+         .bind("my_op")
       , this);
 }
 ```
@@ -691,7 +705,7 @@ virtual void registerMatchers(MatchFinder* Finder)
 {
    Finder->addMatcher(
       binaryOperator(`hasOperatorName`("&&"))
-         .bind("operator")
+         .bind("my_op")
       , this);
 }
 ```
@@ -705,7 +719,7 @@ virtual void registerMatchers(MatchFinder* Finder)
 {
    Finder->addMatcher(
       binaryOperator(hasOperatorName(`"&&"`))
-         .bind("operator")
+         .bind("my_op")
       , this);
 }
 ```
@@ -719,7 +733,7 @@ virtual void registerMatchers(MatchFinder* Finder)
 {
    Finder->addMatcher(
       binaryOperator(hasOperatorName("&&"))
-         .`bind("operator")`
+         .`bind("my_op")`
       , this);
 }
 ```
@@ -733,8 +747,8 @@ virtual void check(
    const MatchFinder::MatchResult& R)
 {
    auto op = R.Nodes.getNodeAs<BinaryOperator>(
-      "operator");
-   auto Diag = diag(R, op->getOperatorLoc(),
+      "my_op");
+   auto Diag = diag(op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
       op->getOperatorLoc(), "and");
@@ -750,8 +764,8 @@ virtual void check(
    const MatchFinder::MatchResult& R)
 {
 *  auto op = R.Nodes.getNodeAs<BinaryOperator>(
-*     "operator");
-   auto Diag = diag(R, op->getOperatorLoc(),
+*     "my_op");
+   auto Diag = diag(op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
       op->getOperatorLoc(), "and");
@@ -767,8 +781,8 @@ virtual void check(
    const MatchFinder::MatchResult& R)
 {
    auto op = R.Nodes.getNodeAs<BinaryOperator>(
-      "operator");
-*  auto Diag = diag(R, op->getOperatorLoc(),
+      "my_op");
+*  auto Diag = diag(op->getOperatorLoc(),
 *     "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
       op->getOperatorLoc(), "and");
@@ -784,8 +798,8 @@ virtual void check(
    const MatchFinder::MatchResult& R)
 {
    auto op = R.Nodes.getNodeAs<BinaryOperator>(
-      "operator");
-   auto Diag = diag(R, op->getOperatorLoc(),
+      "my_op");
+   auto Diag = diag(op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
 *  Diag << FixItHint::CreateReplacement(
 *     op->getOperatorLoc(), "and");
@@ -794,22 +808,25 @@ virtual void check(
 
 ---
 
-## My experience
+## Clang Tidy Output
 
-UI APIs
-
-First lines of code written > 30 years ago.
-
-Many millions LOC
+.small[```
+$ clang-tidy -checks=-*,misc-cppcon demo.cpp
+1 warning generated.
+I:\demo.cpp:2:12: warning: '&&' can be replaced by 'and' [misc-cppcon]
+  return a && b;
+           ^~
+           and
+```]
 
 ---
 
 ## Dead parameters
 
 ```
-void displaySomething(std::string const& name,
+void displayScreen(std::string const& name,
                       T1 param1,
-                      `T2 unused`,
+                      `T2 dead`,
                       T3 param3);
 ```
 
@@ -820,8 +837,8 @@ void displaySomething(std::string const& name,
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- functionDecl(hasName(FUNC_NAME),
-			  parameterCountIs(PARAM_COUNT))))
+ functionDecl(hasName("displayScreen"),
+			  parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -834,8 +851,8 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(`callExpr`(callee(
- functionDecl(hasName(FUNC_NAME),
-			  parameterCountIs(PARAM_COUNT))))
+ functionDecl(hasName("displayScreen"),
+			  parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -848,8 +865,8 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(`callee`(
- functionDecl(hasName(FUNC_NAME),
-			  parameterCountIs(PARAM_COUNT))))
+ functionDecl(hasName("displayScreen"),
+			  parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -862,8 +879,8 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- `functionDecl`(hasName(FUNC_NAME),
-			  parameterCountIs(PARAM_COUNT))))
+ `functionDecl`(hasName("displayScreen"),
+			  parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -876,13 +893,12 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- functionDecl(`hasName(FUNC_NAME)`,
-			  `parameterCountIs(PARAM_COUNT)`)))
+ functionDecl(`hasName("displayScreen")`,
+			  `parameterCountIs(4)`)))
   .bind("function_to_clean"),
   this);
 }
 ```
-
 
 ---
 
@@ -891,8 +907,8 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- functionDecl(hasName(FUNC_NAME),
-			  parameterCountIs(PARAM_COUNT))))
+ functionDecl(hasName("displayScreen"),
+			  parameterCountIs(4))))
   .`bind("function_to_clean")`,
   this);
 }
@@ -906,11 +922,11 @@ virtual void registerMatchers(MatchFinder* Finder){
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = Result.Nodes.getNodeAs<CallExpr>(
+  auto call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto param = call->getArg(PARAM_INDEX);
-  auto Diag = diag(Result, param->getLocation(),
- 	"This parameter is useless");
+  auto param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
+ 	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -924,11 +940,11 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-* auto call = Result.Nodes.getNodeAs<CallExpr>(
+* auto call = R.Nodes.getNodeAs<CallExpr>(
 *	"function_to_clean");
-  auto param = call->getArg(PARAM_INDEX);
-  auto Diag = diag(Result, param->getLocation(),
- 	"This parameter is useless");
+  auto param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
+ 	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -942,11 +958,11 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = Result.Nodes.getNodeAs<CallExpr>(
+  auto call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-* auto param = call->getArg(PARAM_INDEX);
-  auto Diag = diag(Result, param->getLocation(),
- 	"This parameter is useless");
+* auto param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
+ 	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -960,11 +976,11 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = Result.Nodes.getNodeAs<CallExpr>(
+  auto call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto param = call->getArg(PARAM_INDEX);
-* auto Diag = diag(Result, param->getLocation(),
-*	"This parameter is useless");
+  auto param = call->getArg(2);
+* auto Diag = diag(param->getLocation(),
+*	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -978,10 +994,10 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = Result.Nodes.getNodeAs<CallExpr>(
+  auto call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto param = call->getArg(PARAM_INDEX);
-  auto Diag = diag(Result, param->getLocation(),
+  auto param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
  	"This parameter is useless");
 * Diag << FixItHint::CreateRemoval(
 *	param->getLocation());
@@ -1093,11 +1109,11 @@ UIResult UIClass::initializeScreen(int input)
 
 ## New Possibilities
 
-Unsolvable problems are solvable
+* Unsolvable problems became solvable
 
-We can refactor *at large scale*
+* We can refactor *at large scale*
 
-We can *revolutionize* our code!
+* We can *revolutionize* our code!
 
 ---
 
@@ -1121,17 +1137,11 @@ class: center, middle
 
 ---
 
-## Do you want a revolution?
-
-.center[.img-small-size[![Guillotine](img/revolution2.jpg)]]
-
----
-
 ## Huge changelists
 
-Impossible to validate
+* Impossible to validate
 
-Impossible to review by code owners
+* Impossible to review by code owners
 
 ---
 
@@ -1160,7 +1170,7 @@ virtual void registerMatchers(MatchFinder* Finder)
 {
    Finder->addMatcher(
       binaryOperator(hasOperatorName("&&"))
-         .bind("operator")
+         .bind("my_op")
       , this);
 }
 ```
@@ -1182,9 +1192,9 @@ overriden and operators are different nodes because they don't have short-circui
 ## AST matching is hard
 
 ```
-void displaySomething(std::string const& name,
+void displayScreen(std::string const& name,
                       T1 param1,
-                      T2 unused,
+                      T2 dead,
                       T3 param3);
 ```
 
@@ -1193,7 +1203,7 @@ void displaySomething(std::string const& name,
 ```
 #define FALSE 0
 
-void displaySomething("Hello", t1, FALSE, t3);
+void displayScreen("Hello", t1, FALSE, t3);
 ```
 
 ---
@@ -1201,16 +1211,16 @@ void displaySomething("Hello", t1, FALSE, t3);
 ## AST matching is hard
 
 ```
-void displaySomething(std::string const& name,
+void displayScreen(std::string const& name,
                       T1 param1,
-                      T2 unused,
+                      T2 dead,
                       T3 param3);
 ```
 
 ```
 #define FALSE `0`
 
-void displaySomething("Hello", t1, FALSE, t3);
+void displayScreen("Hello", t1, FALSE, t3);
 ```
 
 ---
@@ -1218,16 +1228,16 @@ void displaySomething("Hello", t1, FALSE, t3);
 ## AST matching is hard
 
 ```
-void displaySomething(std::string const& name,
+void displayScreen(std::string const& name,
                       T1 param1,
-                      T2 unused,
+                      T2 dead,
                       T3 param3);
 ```
 
 ```
 #define FALSE 
 
-void displaySomething("Hello", t1, FALSE, t3);
+void displayScreen("Hello", t1, FALSE, t3);
 ```
 
 ---
@@ -1260,20 +1270,22 @@ If you can see it!
 
 Just because your rule *can* run on millions of files doesn't mean it *should*.
 
+There are more sustainable approaches
+
 ---
 
 ## An incremental approach
 
 ```
-void displaySomething(std::string const& name,
+void displayScreen(std::string const& name,
                       T1 param1,
                       T3 param3);
 
-void displaySomething(std::string const& name,
+void displayScreen(std::string const& name,
                       T1 param1,
-                      T2 unused,
+                      T2 dead,
                       T3 param3)
-{ displaySomething(name, param1, param3); }
+{ displayScreen(name, param1, param3); }
 ```
 
 ---
@@ -1343,19 +1355,19 @@ Clang-tidy!
 
 ## Finish
 
-**Temporary** increased complexity
+**Temporary** increase of complexity
 
 ---
 
 ## Clang Tidy
 
-It might redefine your job
+* Redefines our job
 
-And create new possibilities
+* Requires a sustainable approach
 
-Will probably not make your life easier
+* Highlights higher level problems
 
-Requires a sustainable approach
+* Opens new possibilities
 
 ---
 
@@ -1363,7 +1375,7 @@ layout: false
 class: center, middle
 
 # Clang Based Refactoring
-## How to refactor millions of line of code without alienating your colleagues
+## How to refactor millions of lines of code without alienating your colleagues
 
 .name[Fred Tingaud]
 .twitter[@FredTingaudDev]
