@@ -196,9 +196,13 @@ class: center, middle
 
 ???
 
-One of the most interesting challenges I deal with is to maintain the code I own when it is strongly tied with a huge codeline.
+The success of the C++ language is causing a complex and fascinating challenge to us C++ developpers.
 
-How do I maintain it well? How do I refactor it? How do I clean it?
+The amount of existing C++ code is massive and valuable. But how do we evolve it?
+
+I work for Murex, a company developing software for capital markets for more than 35 years now; and that is a question I think about a lot. How do I maintain the code I own when it is strongly tied with a huge codeline.
+
+How do I refactor it? How do I clean it?
 
 ---
 
@@ -746,7 +750,7 @@ virtual void registerMatchers(MatchFinder* Finder)
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-   auto op = R.Nodes.getNodeAs<BinaryOperator>(
+   auto Op = R.Nodes.getNodeAs<BinaryOperator>(
       "my_op");
    auto Diag = diag(op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
@@ -763,7 +767,7 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-*  auto op = R.Nodes.getNodeAs<BinaryOperator>(
+*  auto Op = R.Nodes.getNodeAs<BinaryOperator>(
 *     "my_op");
    auto Diag = diag(op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
@@ -780,7 +784,7 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-   auto op = R.Nodes.getNodeAs<BinaryOperator>(
+   auto Op = R.Nodes.getNodeAs<BinaryOperator>(
       "my_op");
 *  auto Diag = diag(op->getOperatorLoc(),
 *     "'&&' can be replaced by 'and'");
@@ -797,7 +801,7 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-   auto op = R.Nodes.getNodeAs<BinaryOperator>(
+   auto Op = R.Nodes.getNodeAs<BinaryOperator>(
       "my_op");
    auto Diag = diag(op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
@@ -825,9 +829,9 @@ I:\demo.cpp:2:12: warning: '&&' can be replaced by 'and' [misc-cppcon]
 
 ```
 void displayScreen(std::string const& name,
-                      T1 param1,
-                      `T2 dead`,
-                      T3 param3);
+                      int param1,
+                      `int dead`,
+                      bool param3);
 ```
 
 ---
@@ -837,8 +841,8 @@ void displayScreen(std::string const& name,
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- functionDecl(hasName("displayScreen"),
-			  parameterCountIs(4))))
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -851,8 +855,8 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(`callExpr`(callee(
- functionDecl(hasName("displayScreen"),
-			  parameterCountIs(4))))
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -865,8 +869,8 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(`callee`(
- functionDecl(hasName("displayScreen"),
-			  parameterCountIs(4))))
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -880,7 +884,7 @@ virtual void registerMatchers(MatchFinder* Finder){
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
  `functionDecl`(hasName("displayScreen"),
-			  parameterCountIs(4))))
+			   parameterCountIs(4))))
   .bind("function_to_clean"),
   this);
 }
@@ -907,8 +911,8 @@ virtual void registerMatchers(MatchFinder* Finder){
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- functionDecl(hasName("displayScreen"),
-			  parameterCountIs(4))))
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
   .`bind("function_to_clean")`,
   this);
 }
@@ -922,9 +926,9 @@ virtual void registerMatchers(MatchFinder* Finder){
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = R.Nodes.getNodeAs<CallExpr>(
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto param = call->getArg(2);
+  auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
  	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
@@ -940,9 +944,9 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-* auto call = R.Nodes.getNodeAs<CallExpr>(
+* auto Call = R.Nodes.getNodeAs<CallExpr>(
 *	"function_to_clean");
-  auto param = call->getArg(2);
+  auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
  	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
@@ -958,9 +962,9 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = R.Nodes.getNodeAs<CallExpr>(
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-* auto param = call->getArg(2);
+* auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
  	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
@@ -976,9 +980,9 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = R.Nodes.getNodeAs<CallExpr>(
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto param = call->getArg(2);
+  auto Param = call->getArg(2);
 * auto Diag = diag(param->getLocation(),
 *	"This parameter is dead");
   Diag << FixItHint::CreateRemoval(
@@ -994,11 +998,11 @@ virtual void check(
 virtual void check(
    const MatchFinder::MatchResult& R)
 {
-  auto call = R.Nodes.getNodeAs<CallExpr>(
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto param = call->getArg(2);
+  auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
- 	"This parameter is useless");
+ 	"This parameter is dead");
 * Diag << FixItHint::CreateRemoval(
 *	param->getLocation());
 }
@@ -1009,24 +1013,23 @@ virtual void check(
 ## Magic Numbers
 
 ```C++
-/**
- * \returns 0 if no error was encountered
- * 1 otherwise.
- */
-virtual int UIClass::initializeScreen(int input)
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+};
 ```
 
 ---
 
 ```C++
-int UIClass::initializeScreen(int input)
+int SomeReader::read(Message const& m)
 {
   int result = 0;
-  if (treatInput(input))
+  if (!readHeader(m))
     return 1;
-  if (input > 0)
-    result = input < 10
-        ? super::myFunction(input)
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
         : 1;
   return result;
 }
@@ -1035,14 +1038,14 @@ int UIClass::initializeScreen(int input)
 ---
 
 ```C++
-int UIClass::initializeScreen(int input)
+int SomeReader::read(Message const& m)
 {
   int result = 0;
-  if (treatInput(input))
+  if (!readHeader(m))
 *   return 1;
-  if (input > 0)
-    result = input < 10
-        ? super::myFunction(input)
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
         : 1;
 * return result;
 }
@@ -1051,14 +1054,14 @@ int UIClass::initializeScreen(int input)
 ---
 
 ```C++
-int UIClass::initializeScreen(int input)
+int SomeReader::read(Message const& m)
 {
 * int result = 0;
-  if (treatInput(input))
+  if (!readHeader(m))
     return 1;
-  if (input > 0)
-    result = input < 10
-        ? super::myFunction(input)
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
         : 1;
   return result;
 }
@@ -1067,14 +1070,14 @@ int UIClass::initializeScreen(int input)
 ---
 
 ```C++
-int UIClass::initializeScreen(int input)
+int SomeReader::read(Message const& m)
 {
   int result = 0;
-  if (treatInput(input))
+  if (!readHeader(m))
     return 1;
-  if (input > 0)
-*   result = input < 10
-        ? super::myFunction(input)
+  if (m.id > 0)
+*   result = m.id < 10
+        ? readBody(m)
         : 1;
   return result;
 }
@@ -1083,16 +1086,16 @@ int UIClass::initializeScreen(int input)
 ---
 
 ```C++
-enum class UIResult {Continue, Stop};
-UIResult UIClass::initializeScreen(int input)
+enum class Result {Success, Failure};
+Result SomeReader::read(Message const& m)
 {
-  UIResult result = UIResult::Continue;
-  if (treatInput(input))
-    return UIResult::Stop;
-  if (input > 0)
-    result = input < 10
-        ? super::myFunction(input)
-        : UIResult::Stop;
+  Result result = Result::Success;
+  if (!readHeader(m))
+    return Result::Failure;
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
+        : Result::Failure;
   return result;
 }
 ```
@@ -1193,34 +1196,29 @@ overriden and operators are different nodes because they don't have short-circui
 
 ```
 void displayScreen(std::string const& name,
-                      T1 param1,
-                      T2 dead,
-                      T3 param3);
+                      int param1,
+                      int dead,
+                      bool param3);
 ```
 
---
+---
+
+## AST matching is hard
 
 ```
 #define FALSE 0
 
-void displayScreen("Hello", t1, FALSE, t3);
+displayScreen("Hello", t1, FALSE, t3);
 ```
 
 ---
 
 ## AST matching is hard
-
-```
-void displayScreen(std::string const& name,
-                      T1 param1,
-                      T2 dead,
-                      T3 param3);
-```
 
 ```
 #define FALSE `0`
 
-void displayScreen("Hello", t1, FALSE, t3);
+displayScreen("Hello", t1, FALSE, t3);
 ```
 
 ---
@@ -1228,16 +1226,9 @@ void displayScreen("Hello", t1, FALSE, t3);
 ## AST matching is hard
 
 ```
-void displayScreen(std::string const& name,
-                      T1 param1,
-                      T2 dead,
-                      T3 param3);
-```
-
-```
 #define FALSE 
 
-void displayScreen("Hello", t1, FALSE, t3);
+displayScreen("Hello", t1, FALSE, t3);
 ```
 
 ---
@@ -1248,7 +1239,11 @@ Enum class conversion
 
 --
 
-Rule doesn't work for templated classes
+Lambdas
+
+--
+
+Templated classes
 
 ---
 
@@ -1278,13 +1273,13 @@ There are more sustainable approaches
 
 ```
 void displayScreen(std::string const& name,
-                      T1 param1,
-                      T3 param3);
+                   int param1,
+                   bool param3);
 
 void displayScreen(std::string const& name,
-                      T1 param1,
-                      T2 dead,
-                      T3 param3)
+                   int param1,
+                   int dead,
+                   bool param3)
 { displayScreen(name, param1, param3); }
 ```
 
@@ -1293,16 +1288,104 @@ void displayScreen(std::string const& name,
 ## An incremental approach
 
 ```C++
-/**
- * \returns 0 if no error was encountered
- * 1 otherwise.
- */
-virtual int UIClass::initializeScreen(int input);
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+};
+```
 
-enum class UIResult {Continue, Stop};
-virtual UIResult UIClass::initializeScreenEnum(int input) {
-   return static_cast<UIResult>(initializeScreen(int input));
-}
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) {}
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class SomeReader {
+  int read(Message const& m) override {
+    // Old implementation
+  }
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class SomeReader {
+  Result readEnum(Message const& m) {
+    // New implementation
+  }
+
+  int read(Message const& m) override {
+    return readEnum(m) == Result::Success ? 0 : 1;
+  }
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) {}
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+* /// 0 on success, 1 on failure
+* virtual int read(Message const& m) = 0;
+
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) {}
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) = 0;
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) = 0;
+
+* virtual Result read(Message const& m) {}
+};
 ```
 
 ---
@@ -1378,6 +1461,7 @@ class: center, middle
 ## How to refactor millions of lines of code without alienating your colleagues
 
 .name[Fred Tingaud]
+.company[Murex]
 .twitter[@FredTingaudDev]
 
     </textarea>
