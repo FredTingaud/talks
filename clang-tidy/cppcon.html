@@ -228,7 +228,7 @@ Drastic UX disruption]
 
 ---
 
-## The Boyscout Rule
+## The Boy Scout Rule
 
 *Always leave the code better than you found it.*
 
@@ -242,7 +242,7 @@ Drastic UX disruption]
 
 ---
 
-## The Boyscout Rule
+## The Boy Scout Rule
 
 * Powerful on frequently changing areas
 
@@ -252,7 +252,7 @@ Drastic UX disruption]
 
 ---
 
-## The Boyscout Rule
+## The Boy Scout Rule
 
 But, not convenient for:
 
@@ -288,7 +288,7 @@ But...
 
 * Error prone
 
-* Time critical
+* Whack-a-mole
 
 ---
 
@@ -825,18 +825,18 @@ I:\demo.cpp:2:12: warning: '&&' can be replaced by 'and' [misc-cppcon]
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 void displayScreen(std::string const& name,
-                      int param1,
-                      `int dead`,
-                      bool param3);
+                   int param1,
+                   `int unused`,
+                   bool param3);
 ```
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void registerMatchers(MatchFinder* Finder){
@@ -850,7 +850,7 @@ virtual void registerMatchers(MatchFinder* Finder){
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void registerMatchers(MatchFinder* Finder){
@@ -864,7 +864,7 @@ virtual void registerMatchers(MatchFinder* Finder){
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void registerMatchers(MatchFinder* Finder){
@@ -878,7 +878,7 @@ virtual void registerMatchers(MatchFinder* Finder){
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void registerMatchers(MatchFinder* Finder){
@@ -892,12 +892,12 @@ virtual void registerMatchers(MatchFinder* Finder){
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void registerMatchers(MatchFinder* Finder){
  Finder->addMatcher(callExpr(callee(
- functionDecl(`hasName("displayScreen")`,
+  functionDecl(`hasName("displayScreen")`,
 			  `parameterCountIs(4)`)))
   .bind("function_to_clean"),
   this);
@@ -906,7 +906,7 @@ virtual void registerMatchers(MatchFinder* Finder){
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void registerMatchers(MatchFinder* Finder){
@@ -920,7 +920,7 @@ virtual void registerMatchers(MatchFinder* Finder){
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void check(
@@ -930,7 +930,7 @@ virtual void check(
  	"function_to_clean");
   auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
- 	"This parameter is dead");
+ 	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -938,7 +938,7 @@ virtual void check(
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void check(
@@ -948,7 +948,7 @@ virtual void check(
 *	"function_to_clean");
   auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
- 	"This parameter is dead");
+ 	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -956,7 +956,7 @@ virtual void check(
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void check(
@@ -966,7 +966,7 @@ virtual void check(
  	"function_to_clean");
 * auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
- 	"This parameter is dead");
+ 	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -974,7 +974,7 @@ virtual void check(
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void check(
@@ -984,7 +984,7 @@ virtual void check(
  	"function_to_clean");
   auto Param = call->getArg(2);
 * auto Diag = diag(param->getLocation(),
-*	"This parameter is dead");
+*	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
  	param->getLocation());
 }
@@ -992,7 +992,7 @@ virtual void check(
 
 ---
 
-## Dead parameters
+## Unused parameters
 
 ```
 virtual void check(
@@ -1002,7 +1002,7 @@ virtual void check(
  	"function_to_clean");
   auto Param = call->getArg(2);
   auto Diag = diag(param->getLocation(),
- 	"This parameter is dead");
+ 	"This parameter is unused");
 * Diag << FixItHint::CreateRemoval(
 *	param->getLocation());
 }
@@ -1086,7 +1086,6 @@ int SomeReader::read(Message const& m)
 ---
 
 ```C++
-enum class Result {Success, Failure};
 Result SomeReader::read(Message const& m)
 {
   Result result = Result::Success;
@@ -1106,7 +1105,7 @@ Result SomeReader::read(Message const& m)
 
 * Can rerun the script on conflicts
 
-* Can back-out and come back later on problem
+* Can revert and come back later on problem
 
 ---
 
@@ -1197,7 +1196,7 @@ overriden and operators are different nodes because they don't have short-circui
 ```
 void displayScreen(std::string const& name,
                       int param1,
-                      int dead,
+                      int unused,
                       bool param3);
 ```
 
@@ -1278,7 +1277,7 @@ void displayScreen(std::string const& name,
 
 void displayScreen(std::string const& name,
                    int param1,
-                   int dead,
+                   int unused,
                    bool param3)
 { displayScreen(name, param1, param3); }
 ```
