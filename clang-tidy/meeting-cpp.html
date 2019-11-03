@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Clang Based Refactoring</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+         font-family: 'Droid Serif';
+         color: #ccc;
+      }
+      .remark-slide-content {
+         background: #272822;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        font-size: 500%;
+         color: #fff;
+      }
+      .remark-code, .remark-inline-code {
+         font-family: 'Ubuntu Mono';
+         font-size:100%;
+         background-color: #373832 !important;
+      }
+	  .small {
+	     font-size:65%;
+	  }
+      .remark-slide-content { font-size: 220%; }
+      .remark-slide-content h1 { font-size: 250%; }
+      .remark-slide-content h2 { font-size: 180%; }
+      .remark-slide-content h3 { font-size: 180%; }
+      .name {
+        position:absolute;
+        bottom: 80px;
+        left: 50px;
+        font-size: 100%;
+        color: #bbb
+      }
+      .company {
+        position:absolute;
+        bottom: 80px;
+		text-align: center;
+        font-size: 100%;
+        color: #bbb
+      }
+      .twitter {
+        position:absolute;
+        bottom: 80px;
+        font-size: 80%;
+        right: 3em;
+        color: #bbb
+      }
+      .footnote {
+        position:absolute;
+        bottom: 0.2em;
+        left: 14em;
+        font-size: 60%;
+        color: #bbb
+      }
+      .img-full-size img {
+        width:80%;
+      }
+      .revolution img {
+        width:60%
+      }
+      .img-full-width img {
+        width:100%;
+      }
+      .img-full-height img {
+        height: 550px;
+      }
+      .img-half-size img {
+        width:40%;
+      }
+      .img-small-size img {
+        width: 20%;
+      }
+      .img-right-1 {
+        position:absolute;
+        right:2em;
+        top: 5em;
+      }
+      .img-right-2 {
+        position:absolute;
+        right:2em;
+        top: 11em;
+      }
+      .gold {
+        color: gold;
+      }
+      .version {
+        color: LightSkyBlue;
+      }
+      .boilerplate {
+        color: grey;
+      }
+      .url {
+        color:white;
+      }
+      table, th, td {
+        border: 1px solid white;
+      }
+      th, td {
+        padding: 15px;
+      }
+      table {
+        border-spacing: 0px;
+      }
+      .container{
+        display: flex;
+        line-height: 1.5;
+      }
+      .col{
+        flex: 1;
+      }
+      .col0{
+        flex: 0.4;
+      }
+      .remark-code-line-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+      }
+      .remark-code-span-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+        padding: 0px 2px 0px 2px;
+      }
+      .remark-slide-number {
+        position: inherit;
+      }
+      .remark-slide-number .progress-bar-container {
+        position: absolute;
+        bottom: 0;
+        height: 4px;
+        display: block;
+        left: 0;
+        right: 0;
+      }
+      .remark-slide-number .progress-bar {
+        height: 100%;
+        background-color: cyan;
+      }
+      .slide-number {
+        position:absolute;
+        bottom: 0.5em;
+        right: 1em;
+        font-size: 70%;
+      }
+      @page {
+        size: 1210px 681px;
+        margin: 0;
+      }
+      @media print {
+        .remark-slide-scaler {
+          width: 100% !important;
+          height: 100% !important;
+          transform: scale(1) !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Clang Based Refactoring
+## How to refactor millions of lines of code without alienating your colleagues
+
+.name[Fred Tingaud]
+
+.company[Murex]
+
+.twitter[@FredTingaudDev]
+
+???
+
+Does the remote work?
+
+---
+
+class: center, middle
+
+# Clang Based Refactoring
+## How to refactor millions of lines of code without alienating your colleagues
+
+.name[Fred Tingaud]
+
+.company[Murex]
+
+.twitter[@FredTingaudDev]
+
+???
+
+The success of the C++ language is causing a complex and fascinating challenge to us C++ developpers.
+
+The amount of existing C++ code is massive and valuable. But how do we evolve it?
+
+---
+
+.center[.img-full-height[![MMS](img/mms.png)]]
+
+???
+
+I work for Murex, a company developing software for capital markets for more than 35 years now; and that is a question I think about a lot. How do I maintain the code I own when it is strongly tied with a huge codeline.
+
+How do I refactor it? How do I clean it?
+
+---
+
+layout: true
+
+.center[.footnote[Fred Tingaud - @FredTingaudDev - Meeting C++ 2019]]
+
+---
+
+class:center
+
+.img-full-height[![Vacuum Cleaner](img/vacuum.jpg)]
+
+---
+
+## Better Tooling
+
+.center[Continuous tooling improvement
+
+⇓
+
+Drastic UX disruption]
+
+---
+
+## The Boy Scout Rule
+
+*Always leave the code better than you found it.*
+
+--
+
+* Rename unclear functions and variables
+
+* Remove raw loops
+
+* Simplify the code
+
+---
+
+## The Boy Scout Rule
+
+* Powerful on frequently changing areas
+
+* Part of the "Business As Usual"
+
+* Easy to merge
+
+---
+
+## The Boy Scout Rule
+
+But, not convenient for:
+
+* widely used APIs
+
+* risky refactorings
+
+* coordinated refactorings
+
+---
+
+## Golden Boy Refactoring
+
+* Get "unlimited" budget
+
+* Stop everything and refactor
+
+---
+
+## Golden Boy Refactoring
+
+* Can tackle very complex refactorings
+
+* Can lead to great improvements
+
+---
+
+## Golden Boy Refactoring
+
+But...
+
+* Repetitive
+
+* Error prone
+
+* Whack-a-mole
+
+---
+
+class: center, middle
+
+## Clang Tidy
+
+---
+
+## Clang Tidy
+
+C++ linter tool
+
+Clang tool
+
+Static analysis
+
+Automatic fix
+
+---
+
+## Clang
+
+<div class="container">
+<div class="col">
+.right[Objective C
+<br>
+C++
+<br>
+C]
+</div>
+
+<div class="col0">
+.center[⇘
+<br>
+⇒
+<br>
+⇗]
+</div>
+<div class="col">
+.center[
+<br>
+AST* ⇒ ✨
+<br>]
+</div>
+
+<div class="col0">
+.center[⇗
+<br>
+⇒
+<br>
+⇘]
+</div>
+
+<div class="col">
+.left[x86_64
+<br>
+arm
+<br>
+...]
+</div>
+
+</div>
+
+ *Abstract Syntax Tree
+
+---
+
+```
+int getAnswer()
+{
+    int compute = 2 * 21;
+    return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+*int getAnswer()
+*{
+*   int compute = 2 * 21;
+*   return compute;
+*}
+```
+
+
+.small[<pre><code class="nohighlight">
+*TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+*int getAnswer()
+{
+    int compute = 2 * 21;
+    return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+*`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+*{
+*    int compute = 2 * 21;
+*    return compute;
+*}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+* `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+{
+*    int compute = 2 * 21;
+     return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+*   |-DeclStmt 〈line:2:5, col:25〉
+*   | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+*   |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+*   |     |-IntegerLiteral 〈col:19〉 'int' 2
+*   |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+{
+     int compute = 2 * 21;
+*    return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl 〈line:1:1, line:4:1〉 line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+*   `-ReturnStmt 〈line:3:5, col:12〉
+*     `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+*       `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+```
+int getAnswer()
+{
+     int compute = 2 * 21;
+     return compute;
+}
+```
+
+
+.small[<pre><code class="nohighlight">
+TranslationUnitDecl
+`-FunctionDecl `〈line:1:1, line:4:1〉` line:1:5 getAnswer 'int ()'
+  `-CompoundStmt 〈col:17, line:4:1〉
+    |-DeclStmt 〈line:2:5, col:25〉
+    | `-VarDecl 〈col:5, col:23〉 col:9 used compute 'int' cinit
+    |   `-BinaryOperator 〈col:19, col:23〉 'int' '*'
+    |     |-IntegerLiteral 〈col:19〉 'int' 2
+    |     `-IntegerLiteral 〈col:23〉 'int' 21
+    `-ReturnStmt 〈line:3:5, col:12〉
+      `-ImplicitCastExpr 〈col:12〉 'int' 〈LValueToRValue〉
+        `-DeclRefExpr 〈col:12〉 'int' lvalue Var 0x55e0335b3f80 'compute' 'int'
+</code></pre>]
+
+---
+
+## Clang
+
+<div class="container">
+<div class="col">
+.right[Objective C
+<br>
+C++
+<br>
+C]
+</div>
+
+<div class="col0">
+.center[⇘⇖
+<br>
+⇔
+<br>
+⇗⇙]
+</div>
+<div class="col">
+.center[
+<br>
+AST* ⇒ ✨
+<br>]
+</div>
+
+<div class="col0">
+.center[⇗
+<br>
+⇒
+<br>
+⇘]
+</div>
+
+<div class="col">
+.left[x86_64
+<br>
+arm
+<br>
+...]
+</div>
+
+</div>
+
+
+ *Abstract Syntax Tree
+
+---
+
+## Clang Tidy
+
+```
+for (vector<int>::iterator it = v.begin()
+    ; it != v.end()
+    ; ++it)
+  cout << *it;
+```
+
+becomes
+
+```
+for (auto & elem : v)
+  cout << elem;
+```
+
+---
+
+```
+void f(int x) {
+  std::auto_ptr<int> a(new int(x));
+  std::auto_ptr<int> b = a;
+  take_ownership_fn(b);
+}
+```
+
+becomes
+
+```
+void f(int x) {
+  std::unique_ptr<int> a(new int(x));
+  std::unique_ptr<int> b = std::move(a);
+  take_ownership_fn(std::move(b));
+}
+```
+
+---
+
+## Clang Tidy
+
+C++ API for writing new checks
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(MY_MATCHER, this);
+}
+```
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R) {
+   // React to match
+}
+```
+
+---
+
+.img-full-height[![AST Reference](img/ast-ref.png)]
+
+---
+
+## Clang Tidy Matcher
+
+.img-full-width[![Branching AST matchers](img/ast-matchers.png)]
+
+---
+
+## Clang Tidy Custom Rule
+
+```
+if (a && b) {/* ... */}
+```
+
+vs
+
+```
+if (a and b) {/* ... */}
+```
+
+???
+
+Rule to replace **double ampersand** with "and"
+
+Change mid-project
+
+r-value references and forwarding references are caught
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName("&&"))
+         .bind("my_op")
+      , this);
+}
+```
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      `binaryOperator`(hasOperatorName("&&"))
+         .bind("my_op")
+      , this);
+}
+```
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(`hasOperatorName`("&&"))
+         .bind("my_op")
+      , this);
+}
+```
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName(`"&&"`))
+         .bind("my_op")
+      , this);
+}
+```
+
+---
+
+## Clang Tidy Matcher
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName("&&"))
+         .`bind("my_op")`
+      , this);
+}
+```
+
+---
+
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+   auto Op = R.Nodes.getNodeAs<BinaryOperator>(
+      "my_op");
+   auto Diag = diag(op->getOperatorLoc(),
+      "'&&' can be replaced by 'and'");
+   Diag << FixItHint::CreateReplacement(
+      op->getOperatorLoc(), "and");
+}
+```
+
+---
+
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+*  auto Op = R.Nodes.getNodeAs<BinaryOperator>(
+*     "my_op");
+   auto Diag = diag(op->getOperatorLoc(),
+      "'&&' can be replaced by 'and'");
+   Diag << FixItHint::CreateReplacement(
+      op->getOperatorLoc(), "and");
+}
+```
+
+---
+
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+   auto Op = R.Nodes.getNodeAs<BinaryOperator>(
+      "my_op");
+*  auto Diag = diag(op->getOperatorLoc(),
+*     "'&&' can be replaced by 'and'");
+   Diag << FixItHint::CreateReplacement(
+      op->getOperatorLoc(), "and");
+}
+```
+
+---
+
+## Clang Tidy Diagnostic
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+   auto Op = R.Nodes.getNodeAs<BinaryOperator>(
+      "my_op");
+   auto Diag = diag(op->getOperatorLoc(),
+      "'&&' can be replaced by 'and'");
+*  Diag << FixItHint::CreateReplacement(
+*     op->getOperatorLoc(), "and");
+}
+```
+
+---
+
+## Clang Tidy Output
+
+.small[```
+$ clang-tidy -checks=-*,misc-meeting-cpp demo.cpp
+1 warning generated.
+I:\demo.cpp:2:12: warning: '&&' can be replaced by 'and' [misc-meeting-cpp]
+  return a && b;
+           ^~
+           and
+```]
+
+---
+
+## Unused parameters
+
+```
+void displayScreen(std::string const& name,
+                   int param1,
+                   `int unused`,
+                   bool param3);
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(`callExpr`(callee(
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(`callee`(
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+ `functionDecl`(hasName("displayScreen"),
+			   parameterCountIs(4))))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+  functionDecl(`hasName("displayScreen")`,
+			  `parameterCountIs(4)`)))
+  .bind("function_to_clean"),
+  this);
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void registerMatchers(MatchFinder* Finder){
+ Finder->addMatcher(callExpr(callee(
+  functionDecl(hasName("displayScreen"),
+			   parameterCountIs(4))))
+  .`bind("function_to_clean")`,
+  this);
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+  auto Param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
+ 	"This parameter is unused");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+* auto Call = R.Nodes.getNodeAs<CallExpr>(
+*	"function_to_clean");
+  auto Param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
+ 	"This parameter is unused");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+* auto Param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
+ 	"This parameter is unused");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+  auto Param = call->getArg(2);
+* auto Diag = diag(param->getLocation(),
+*	"This parameter is unused");
+  Diag << FixItHint::CreateRemoval(
+ 	param->getLocation());
+}
+```
+
+---
+
+## Unused parameters
+
+```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+  auto Call = R.Nodes.getNodeAs<CallExpr>(
+ 	"function_to_clean");
+  auto Param = call->getArg(2);
+  auto Diag = diag(param->getLocation(),
+ 	"This parameter is unused");
+* Diag << FixItHint::CreateRemoval(
+*	param->getLocation());
+}
+```
+
+---
+
+## Magic Numbers
+
+```C++
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
+```C++
+int SomeReader::read(Message const& m)
+{
+  int result = 0;
+  if (!readHeader(m))
+    return 1;
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
+        : 1;
+  return result;
+}
+```
+
+---
+
+```C++
+int SomeReader::read(Message const& m)
+{
+  int result = 0;
+  if (!readHeader(m))
+*   return 1;
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
+        : 1;
+* return result;
+}
+```
+
+---
+
+```C++
+int SomeReader::read(Message const& m)
+{
+* int result = 0;
+  if (!readHeader(m))
+    return 1;
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
+        : 1;
+  return result;
+}
+```
+
+---
+
+```C++
+int SomeReader::read(Message const& m)
+{
+  int result = 0;
+  if (!readHeader(m))
+    return 1;
+  if (m.id > 0)
+*   result = m.id < 10
+        ? readBody(m)
+        : 1;
+  return result;
+}
+```
+
+---
+
+```C++
+Result SomeReader::read(Message const& m)
+{
+  Result result = Result::Success;
+  if (!readHeader(m))
+    return Result::Failure;
+  if (m.id > 0)
+    result = m.id < 10
+        ? readBody(m)
+        : Result::Failure;
+  return result;
+}
+```
+
+---
+
+## Start Making Your Own Rules
+
+Jeremy Demeule - Adding a New clang-tidy Check by the Practice - CPPP 2019
+
+.middle[.center[[![Adding A New clang-tidy Check Video](https://img.youtube.com/vi/K-WhaEUEZWc/0.jpg)](https://www.youtube.com/watch?v=K-WhaEUEZWc)]]
+
+---
+
+## Start Making Your Own Rules
+
+Stephen Kelly's work
+
+steveire.wordpress.com
+
+---
+
+godbolt.org/z/NfYiiV
+
+.middle[.center[.img-full-size[![Compiler Explorer](img/ce.png)]]]
+
+---
+
+## Merging / Integrating
+
+* Can rerun the script on conflicts
+
+* Can revert and come back later on problem
+
+---
+
+## New Possibilities
+
+* Unsolvable problems became solvable
+
+* We can refactor *at large scale*
+
+* We can *revolutionize* our code!
+
+---
+
+class: center, middle
+
+.revolution[![Unicorns](img/unicorns.jpg)]
+
+## 🌈 Thank you 🦄
+
+---
+
+class: center, middle
+
+## \* *Record scratch* \*
+
+---
+
+## Do you want a revolution?
+
+.center[.revolution[![Revolution](img/revolution1.jpg)]]
+
+---
+
+## Huge changelists
+
+* Impossible to validate
+
+* Impossible to review by code owners
+
+---
+
+## C++ is HARD!
+
+--
+
+.middle[.center[.img[![Initialization](img/initialize.gif)]]]
+
+---
+
+## C++ is HARD!
+
+So is AST matching!
+
+--
+
+You will trip more than once.
+
+---
+
+## AST matching is hard
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName("&&"))
+         .bind("my_op")
+      , this);
+}
+```
+
+---
+
+`&&` and `and` are both caught
+
+.small[```
+$ clang-tidy -checks=-*,misc-meeting-cpp demo.cpp
+1 warning generated.
+I:\demo.cpp:2:12: warning: '&&' can be replaced by 'and' [misc-meeting-cpp]
+  return a and b;
+           ^~~
+           and
+```]
+
+---
+
+.small[```
+virtual void check(
+   const MatchFinder::MatchResult& R)
+{
+   auto Op = R.Nodes.getNodeAs<BinaryOperator>("my_op");
+
+   CharSourceRange sr(R.SourceManager->getExpansionLoc(op->getOperatorLoc()),
+                      true);
+   auto txt = clang::Lexer::getSourceText(sr,
+                                          *R.SourceManager,
+                                          R.Context->getLangOpts());
+   if (txt == "&&") {
+     // Diagnostic and FixIt
+   }
+}
+```]
+
+---
+
+`bool operator&&(T const&)` is not caught
+
+--
+
+```
+virtual void registerMatchers(MatchFinder* Finder)
+{
+   Finder->addMatcher(
+      binaryOperator(hasOperatorName("&&"))
+         .bind("my_op")
+      , this);
+*  Finder->addMatcher(
+*     cxxOperatorCallExpr(hasOperatorName("&&"))
+*        .bind("my_op")
+*     , this);
+}
+```
+
+???
+
+overriden and operators are different nodes because they don't have short-circuit evaluation.
+
+---
+
+## AST matching is hard
+
+```
+void displayScreen(std::string const& name,
+                      int param1,
+                      int unused,
+                      bool param3);
+```
+
+---
+
+## AST matching is hard
+
+```
+#define FALSE 0
+
+displayScreen("Hello", t1, FALSE, t3);
+```
+
+---
+
+## AST matching is hard
+
+```
+#define FALSE `0`
+
+displayScreen("Hello", t1, FALSE, t3);
+```
+
+---
+
+## AST matching is hard
+
+```
+#define FALSE 
+
+displayScreen("Hello", t1, FALSE, t3);
+```
+
+---
+
+## AST matching is hard
+
+Replace
+
+```
+param->getLocation()
+```
+
+with
+
+```
+SourceManager.getFileLoc(param->getLocation())
+```
+
+---
+
+## AST matching is hard
+
+Enum class conversion
+
+---
+
+## AST matching is hard
+
+```C++
+int SomeReader::read(Message const& m)
+{
+  auto isOK = [](Elem const& e) {return e.isOk();}
+  return std::allOf(myElems, isOK) ? 0 : 1;
+}
+```
+
+---
+
+## AST matching is hard
+
+```C++
+int SomeReader::read(Message const& m)
+{
+  auto isOK = [](Elem const& e) {`return e.isOk()`;}
+  return std::allOf(myElems, isOK) ? 0 : 1;
+}
+```
+
+---
+
+## AST matching is hard
+
+We can add in the matcher
+
+```
+returnStmt(forFunction(hasName("read")))
+```
+
+---
+
+## AST matching is hard
+
+Mixes badly with templated classes
+
+---
+
+## AST matching is hard
+
+Not really a problem...
+
+--
+
+If you can see it!
+
+---
+
+## Readable pull requests
+
+.center[.middle[.img[![could, not should](img/jurassic.jpg)]]]
+
+???
+
+Just because your rule *can* run on millions of files doesn't mean it *should*.
+
+There are more sustainable approaches
+
+---
+
+## An incremental approach
+
+```
+void displayScreen(std::string const& name,
+                   int param1,
+                   bool param3);
+
+void displayScreen(std::string const& name,
+                   int param1,
+                   int unused,
+                   bool param3)
+{ displayScreen(name, param1, param3); }
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) {}
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class SomeReader : public Reader {
+  int read(Message const& m) override {
+    // Old implementation
+  }
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class SomeReader : public Reader {
+  Result readEnum(Message const& m) override {
+    // New implementation
+  }
+
+  int read(Message const& m) override {
+    return readEnum(m) == Result::Success ? 0 : 1;
+  }
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class SomeReader : public Reader {
+  Result readEnum(Message const& m) override  {
+    // New implementation
+  }
+
+  int read(Message const& m) override final {
+    return readEnum(m) == Result::Success ? 0 : 1;
+  }
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  /// 0 on success, 1 on failure
+  virtual int read(Message const& m) = 0;
+
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) {}
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+* /// 0 on success, 1 on failure
+* virtual int read(Message const& m) = 0;
+
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) {}
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) = 0;
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
+## An incremental approach
+
+```C++
+class Reader {
+  enum class Result {Success, Failure};
+  virtual Result readEnum(Message const& m) = 0;
+
+* virtual Result read(Message const& m) {}
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
+## An incremental approach
+
+More work...
+
+---
+
+## Find the right pull request size
+
+1 PR of 1000 files?
+
+1000 PR of 1 file?
+
+---
+
+## Automatize
+
+MANY
+
+* patches
+
+* pull-requests
+
+* mails
+
+* merges
+
+---
+
+## Protect
+
+What if other teams are undoing your work?
+
+--
+
+[[deprecated]]
+
+???
+
+deprecated attribute
+
+--
+
+Clang-tidy!
+
+---
+
+## Finish
+
+**Temporary** increase of complexity
+
+---
+
+## Clang Tidy
+
+* Redefines our job
+
+* Requires a sustainable approach
+
+* Highlights higher level problems
+
+* Opens new possibilities
+
+---
+
+layout: false
+class: center, middle
+
+# Clang Based Refactoring
+## How to refactor millions of lines of code without alienating your colleagues
+
+.name[Fred Tingaud]
+.company[Murex]
+.twitter[@FredTingaudDev]
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+          ratio: '16:9',
+          highlightStyle: 'monokai',
+          highlightLanguage: 'C++',
+          highlightLines: true,
+          highlightSpans: true,
+          slideNumberFormat: (current, total) => `<div class="slide-number">${current}</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: ${current/total*100}%">
+          </div>
+        </div>
+      `
+        });
+    </script>
+  </body>
+</html>
