@@ -648,16 +648,6 @@ virtual void check(
 
 ---
 
-.img-full-height[![AST Reference](img/ast-ref.png)]
-
----
-
-## Clang Tidy Matcher
-
-.img-full-width[![Branching AST matchers](img/ast-matchers.png)]
-
----
-
 ## Clang Tidy Custom Rule
 
 ```
@@ -1029,6 +1019,21 @@ class Reader {
 
 ---
 
+## Magic Numbers
+
+```C++
+enum class Result {Success = 0,
+                   Failure = 1};
+
+class Reader {
+  virtual Result read(Message const& m) = 0;
+
+  virtual ~Reader() = default;
+};
+```
+
+---
+
 ```C++
 int SomeReader::read(Message const& m)
 {
@@ -1106,6 +1111,16 @@ Result SomeReader::read(Message const& m)
   return result;
 }
 ```
+
+---
+
+.img-full-height[![AST Reference](img/ast-ref.png)]
+
+---
+
+## Clang Tidy Matcher
+
+.img-full-width[![Branching AST matchers](img/ast-matchers.png)]
 
 ---
 
@@ -1426,7 +1441,6 @@ class Reader {
   /// 0 on success, 1 on failure
   virtual int read(Message const& m) = 0;
 
-  enum class Result {Success, Failure};
   virtual Result readEnum(Message const& m) {}
 
   virtual ~Reader() = default;
@@ -1467,11 +1481,11 @@ class SomeReader : public Reader {
 
 ```C++
 class SomeReader : public Reader {
-  Result readEnum(Message const& m) override  {
+  Result readEnum(Message const& m) override {
     // New implementation
   }
 
-  int read(Message const& m) override final {
+  int read(Message const& m) override `final` {
     return readEnum(m) == Result::Success ? 0 : 1;
   }
 };
