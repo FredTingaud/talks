@@ -1500,7 +1500,6 @@ class Reader {
   /// 0 on success, 1 on failure
   virtual int read(Message const& m) = 0;
 
-  enum class Result {Success, Failure};
   virtual Result readEnum(Message const& m) {}
 
   virtual ~Reader() = default;
@@ -1516,7 +1515,6 @@ class Reader {
 * /// 0 on success, 1 on failure
 * virtual int read(Message const& m) = 0;
 
-  enum class Result {Success, Failure};
   virtual Result readEnum(Message const& m) {}
 
   virtual ~Reader() = default;
@@ -1529,7 +1527,6 @@ class Reader {
 
 ```C++
 class Reader {
-  enum class Result {Success, Failure};
   virtual Result readEnum(Message const& m) = 0;
 
   virtual ~Reader() = default;
@@ -1542,7 +1539,6 @@ class Reader {
 
 ```C++
 class Reader {
-  enum class Result {Success, Failure};
   virtual Result readEnum(Message const& m) = 0;
 
 * virtual Result read(Message const& m) {}
