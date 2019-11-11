@@ -202,6 +202,12 @@ The amount of existing C++ code is massive and valuable. But how do we evolve it
 
 ---
 
+layout: true
+
+.center[.footnote[Fred Tingaud - @FredTingaudDev - Meeting C++ 2019]]
+
+---
+
 .center[.img-full-height[![MMS](img/mms.png)]]
 
 ???
@@ -209,12 +215,6 @@ The amount of existing C++ code is massive and valuable. But how do we evolve it
 I work for Murex, a company developing software for capital markets for more than 35 years now; and that is a question I think about a lot. How do I maintain the code I own when it is strongly tied with a huge codeline.
 
 How do I refactor it? How do I clean it?
-
----
-
-layout: true
-
-.center[.footnote[Fred Tingaud - @FredTingaudDev - Meeting C++ 2019]]
 
 ---
 
@@ -748,10 +748,10 @@ virtual void check(
 {
    auto Op = R.Nodes.getNodeAs<BinaryOperator>(
       "my_op");
-   auto Diag = diag(op->getOperatorLoc(),
+   auto Diag = diag(Op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
-      op->getOperatorLoc(), "and");
+      Op->getOperatorLoc(), "and");
 }
 ```
 
@@ -765,10 +765,10 @@ virtual void check(
 {
 *  auto Op = R.Nodes.getNodeAs<BinaryOperator>(
 *     "my_op");
-   auto Diag = diag(op->getOperatorLoc(),
+   auto Diag = diag(Op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
-      op->getOperatorLoc(), "and");
+      Op->getOperatorLoc(), "and");
 }
 ```
 
@@ -782,10 +782,10 @@ virtual void check(
 {
    auto Op = R.Nodes.getNodeAs<BinaryOperator>(
       "my_op");
-*  auto Diag = diag(op->getOperatorLoc(),
+*  auto Diag = diag(Op->getOperatorLoc(),
 *     "'&&' can be replaced by 'and'");
    Diag << FixItHint::CreateReplacement(
-      op->getOperatorLoc(), "and");
+      Op->getOperatorLoc(), "and");
 }
 ```
 
@@ -799,10 +799,10 @@ virtual void check(
 {
    auto Op = R.Nodes.getNodeAs<BinaryOperator>(
       "my_op");
-   auto Diag = diag(op->getOperatorLoc(),
+   auto Diag = diag(Op->getOperatorLoc(),
       "'&&' can be replaced by 'and'");
 *  Diag << FixItHint::CreateReplacement(
-*     op->getOperatorLoc(), "and");
+*     Op->getOperatorLoc(), "and");
 }
 ```
 
@@ -924,11 +924,11 @@ virtual void check(
 {
   auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto Param = call->getArg(2);
-  auto Diag = diag(param->getLocation(),
+  auto Param = Call->getArg(2);
+  auto Diag = diag(Param->getLocation(),
  	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
- 	param->getLocation());
+ 	Param->getLocation());
 }
 ```
 
@@ -942,11 +942,11 @@ virtual void check(
 {
 * auto Call = R.Nodes.getNodeAs<CallExpr>(
 *	"function_to_clean");
-  auto Param = call->getArg(2);
-  auto Diag = diag(param->getLocation(),
+  auto Param = Call->getArg(2);
+  auto Diag = diag(Param->getLocation(),
  	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
- 	param->getLocation());
+ 	Param->getLocation());
 }
 ```
 
@@ -960,11 +960,11 @@ virtual void check(
 {
   auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-* auto Param = call->getArg(2);
-  auto Diag = diag(param->getLocation(),
+* auto Param = Call->getArg(2);
+  auto Diag = diag(Param->getLocation(),
  	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
- 	param->getLocation());
+ 	Param->getLocation());
 }
 ```
 
@@ -978,11 +978,11 @@ virtual void check(
 {
   auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto Param = call->getArg(2);
-* auto Diag = diag(param->getLocation(),
+  auto Param = Call->getArg(2);
+* auto Diag = diag(Param->getLocation(),
 *	"This parameter is unused");
   Diag << FixItHint::CreateRemoval(
- 	param->getLocation());
+ 	Param->getLocation());
 }
 ```
 
@@ -996,11 +996,11 @@ virtual void check(
 {
   auto Call = R.Nodes.getNodeAs<CallExpr>(
  	"function_to_clean");
-  auto Param = call->getArg(2);
-  auto Diag = diag(param->getLocation(),
+  auto Param = Call->getArg(2);
+  auto Diag = diag(Param->getLocation(),
  	"This parameter is unused");
 * Diag << FixItHint::CreateRemoval(
-*	param->getLocation());
+*	Param->getLocation());
 }
 ```
 
@@ -1140,7 +1140,7 @@ steveire.wordpress.com
 
 ---
 
-godbolt.org/z/NfYiiV
+godbolt.org/z/clang-query
 
 .middle[.center[.img-full-size[![Compiler Explorer](img/ce.png)]]]
 
@@ -1243,12 +1243,12 @@ virtual void check(
 {
    auto Op = R.Nodes.getNodeAs<BinaryOperator>("my_op");
 
-   CharSourceRange sr(R.SourceManager->getExpansionLoc(op->getOperatorLoc()),
+   CharSourceRange Sr(R.SourceManager->getExpansionLoc(Op->getOperatorLoc()),
                       true);
-   auto txt = clang::Lexer::getSourceText(sr,
+   auto Txt = clang::Lexer::getSourceText(Sr,
                                           *R.SourceManager,
                                           R.Context->getLangOpts());
-   if (txt == "&&") {
+   if (Txt == "&&") {
      // Diagnostic and FixIt
    }
 }
@@ -1326,13 +1326,13 @@ displayScreen("Hello", t1, FALSE, t3);
 Replace
 
 ```
-param->getLocation()
+Param->getLocation()
 ```
 
 with
 
 ```
-SourceManager.getFileLoc(param->getLocation())
+SourceManager.getFileLoc(Param->getLocation())
 ```
 
 ---
@@ -1393,7 +1393,7 @@ If you can see it!
 
 ---
 
-## Readable pull requests
+## Giant pull requests
 
 .center[.middle[.img[![could, not should](img/jurassic.jpg)]]]
 
