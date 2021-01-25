@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>std::variant and friends</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+         font-family: 'Droid Serif';
+         color: #ccc;
+      }
+      .remark-slide-content {
+         background: #272822;
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+        font-size: 500%;
+         color: #fff;
+      }
+      .remark-code, .remark-inline-code {
+         font-family: 'Ubuntu Mono';
+         font-size:80%;
+         background-color: #373832 !important;
+      }
+	  .small {
+	     font-size:65%;
+	  }
+      .remark-slide-content { font-size: 220%; }
+      .remark-slide-content h1 { font-size: 250%; }
+      .remark-slide-content h2 { font-size: 180%; }
+      .remark-slide-content h3 { font-size: 180%; }
+      .name {
+        position:absolute;
+        bottom: 80px;
+        left: 50px;
+        font-size: 100%;
+        color: #bbb
+      }
+      .company {
+        position:absolute;
+        bottom: 80px;
+		text-align: center;
+        font-size: 100%;
+        color: #bbb
+      }
+      .twitter {
+        position:absolute;
+        bottom: 80px;
+        font-size: 80%;
+        right: 3em;
+        color: #bbb
+      }
+      .footnote {
+        position:absolute;
+        bottom: 0.2em;
+        left: 14em;
+        font-size: 60%;
+        color: #bbb
+      }
+      .img-full-size img {
+        width:80%;
+      }
+      .revolution img {
+        width:60%
+      }
+      .img-full-width img {
+        width:100%;
+      }
+      .img-full-height img {
+        height: 550px;
+      }
+      .img-half-size img {
+        width:40%;
+      }
+      .img-small-size img {
+        width: 20%;
+      }
+      .img-right-1 {
+        position:absolute;
+        right:2em;
+        top: 5em;
+      }
+      .img-right-2 {
+        position:absolute;
+        right:2em;
+        top: 11em;
+      }
+      .gold {
+        color: gold;
+      }
+      .version {
+        color: LightSkyBlue;
+      }
+      .boilerplate {
+        color: grey;
+      }
+      .url {
+        color:white;
+      }
+      table, th, td {
+        border: 1px solid white;
+      }
+      th, td {
+        padding: 15px;
+      }
+      table {
+        border-spacing: 0px;
+      }
+      .container{
+        display: flex;
+        line-height: 1.5;
+      }
+      .col{
+        flex: 1;
+      }
+      .col0{
+        flex: 0.4;
+      }
+      .remark-code-line-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+      }
+      .remark-code-span-highlighted {
+        background-color: rgba(150, 130, 100, 0.7);
+        padding: 0px 2px 0px 2px;
+      }
+      .remark-slide-number {
+        position: inherit;
+      }
+      .remark-slide-number .progress-bar-container {
+        position: absolute;
+        bottom: 0;
+        height: 4px;
+        display: block;
+        left: 0;
+        right: 0;
+      }
+      .remark-slide-number .progress-bar {
+        height: 100%;
+        background-color: cyan;
+      }
+      .slide-number {
+        position:absolute;
+        bottom: 0.5em;
+        right: 1em;
+        font-size: 70%;
+      }
+      @page {
+        size: 1210px 681px;
+        margin: 0;
+      }
+      @media print {
+        .remark-slide-scaler {
+          width: 100% !important;
+          height: 100% !important;
+          transform: scale(1) !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Les types d'union en C++17
+# std::variant et ses amis
+
+.name[Fred Tingaud]
+
+.company[Murex]
+
+.twitter[@FredTingaudDev]
+
+---
+class: center, middle
+
+## std::variant
+
+---
+
+layout: true
+
+.footnote[Fred Tingaud - @FredTingaudDev - C++ FrUG]
+
+---
+
+## std::variant
+
+```
+std::variant<bool, int> a = true;
+a = 15;
+std::variant<bool, int> b = a;
+```
+
+---
+## std::variant
+
+```
+struct Image {
+  /* ... */
+};
+
+struct Animation {
+  std::vector<Image> images;
+  size_t position;
+};
+
+struct GameElement {
+  /* ... */
+  std::variant<Animation, Image> representation;
+};
+```
+
+---
+## Type somme
+
+std::variant est un type somme
+
+???
+
+Les types d'union sont aussi appelés types sommes, car leur cardinalité est la somme de la cardinalité de leurs composants, par opposition aux types produits telles que les classes.
+
+---
+## La cardinalité
+
+* bool
+
+--
+
+ * cardinalité de 2 : false ou true
+
+--
+
+* unsigned char
+
+--
+
+ * cardinalité de 256 : 0 à 255
+
+--
+
+* `enum class Direction { Up, Down, Left, Right };`
+
+--
+
+ * cardinalité de 4
+
+---
+## La cardinalité
+
+```
+struct S {
+  bool a;
+  unsigned char b;
+};
+```
+
+--
+
+* cardinalité de 2 x 256
+ 
+{true, 0} | {false, 0} | {true, 1} | ...
+
+--
+
+* struct / class sont des types produits
+
+---
+## La cardinalité
+
+```
+enum class State {Stand, Punch, Jump};
+
+struct Sprite {
+  State state;
+  unsigned char attackPower;
+  unsigned char jumpHeight;
+};
+```
+
+--
+
+cardinalité de Sprite est : 3 x 256 x 256 = 196'608
+
+---
+```
+struct StandData {
+};
+
+struct PunchData {
+  unsigned char attackPower;
+};
+
+struct JumpData {
+  unsigned char jumpHeight;
+};
+
+struct Sprite {
+  std::variant<StandData, PunchData, JumpData> data;
+};
+```
+
+---
+
+## Les types somme
+
+La cardinalité de Sprite est : 1 + 256 + 256 = 513
+
+--
+
+196'095 états de moins
+
+{state= Standing, power = 40, jump = 124}?
+
+???
+
+Sérieux gain en simplicité et en sécurité : On n'a pas de risque de se retrouver dans un état qui n'a pas de sens. Quelqu'un qui debug sans connaitre le code sait immédiatement quelles variables ont du sens ou non.
+Si une partie des composants d'une classe n'a de sens que si une autre a une valeur, c'est généralement un signe que std::variant pourrait être utile.
+
+---
+
+Alternative?
+
+```
+struct StandData : public Data {
+};
+
+struct PunchData : public Data {
+  unsigned char attackPower;
+};
+
+struct JumpData : public Data {
+  unsigned char jumpHeight;
+};
+
+struct Sprite {
+  Data* data; 
+};
+```
+
+---
+## std::variant VS héritage
+
+Visibilité VS Encapsulation
+
+* Est-ce que je connais tous les types ?
+
+--
+
+* Est-ce que je veux que mes types soient visibles ?
+
+--
+
+* Est-ce que je peux modifier les types ?
+
+---
+
+Alternative?
+
+```
+struct StandData {
+};
+
+struct PunchData {
+  unsigned char attackPower;
+};
+
+struct JumpData {
+  unsigned char jumpHeight;
+};
+
+enum class State {Stand, Punch, Jump};
+
+struct Sprite {
+  State state;
+  union<StandData, PunchData, JumpData> data;
+};
+```
+
+---
+## C union
+
+--
+
+# Non
+
+--
+
+*Sauf si vous êtes l'implémenteur de std::variant ou si vous avez un mot d'excuse signé par Bjarne Stroustrup
+
+---
+## Écrire dans un variant
+
+```
+#include <variant>
+int main() {
+  std::variant<StandData, PunchData> v = StandData{};
+  std::variant<StandData, PunchData> v2 = v;
+  v2 = PunchData{20};
+}
+```
+
+---
+## Construire dans un variant
+
+```
+void loadAnimation(const std::string& path) {
+  // Load the animation directly in the variant without copy
+  std::variant<Animation, Image> representation {
+      std::in_place_type<Animation>, "path/to/animation"};
+}
+```
+
+---
+## Lire un variant
+
+```
+class Sprite {
+private:
+  std::variant<StandData, JumpData> data;
+
+public:
+void jump() {
+  JumpData j = std::get<JumpData>(data);
+  // ...
+}
+};
+```
+
+---
+## Lire un variant
+
+En cas d'erreur, std::get lance std::bad_variant_access
+
+---
+## Lire un variant
+
+```
+class Sprite {
+private:
+  std::variant<StandData, JumpData> data;
+
+public:
+void jump() {
+  JumpData* j = std::get_if<JumpData>(&data);
+  // ...
+}
+};
+```
+
+---
+## Observer un variant
+
+```
+bool isJumping(
+       const std::variant<StandData, JumpData>& data) {
+  return data.index() == 1;
+}
+
+bool isStanding(
+       const std::variant<StandData, JumpData>& data) {
+  return std::holds_alternative<StandData>(data);
+}
+```
+
+---
+Visiter
+
+```
+struct PhysicsVisitor
+{
+  void operator()(StandData) const {}
+  void operator()(JumpData j) const {
+    jumpPhysics(j.jumpHeight);
+  }
+  void operator()(PunchData p) const {
+    punchPhysics(p.attackPower);
+  }
+};
+
+int PhysicsEngine(std::vector<Sprite> const& sprites) {
+  for (Sprite p: sprites) {
+    std::variant<StandData, PunchData, JumpData> v = p.data;
+    std::visit(PhysicsVisitor{}, v);
+  }
+}
+```
+
+---
+class: center, middle
+
+## std::variant
+### advanced
+
+---
+##std::variant
+
+```
+void doThing(int val){
+  std::variant<int, int> a {std::in_place_index<0>, val};
+  int b = std::get<0>(a);
+}
+```
+
+--
+
+```
+template<typename T>
+void doThing(T val){
+  std::variant<T, int> a {std::in_place_index<0>, val};
+  T b = std::get<0>(a);
+}
+```
+
+---
+##std::variant
+
+```
+void doThing(int val){
+  std::variant<int> a {std::in_place_index<0>, val};
+  int b = std::get<0>(a);
+}
+```
+--
+
+```
+template<typename T, typename... Rest>
+void doThing(T val, Rest... rest){
+  std::variant<T, Rest...> a {std::in_place_index<0>, val};
+  useVariant(a);
+}
+```
+
+---
+## Les interdits
+
+* `std::variant<T[]>`
+
+--
+ * remplaçable par `std::array<T, Num>`
+--
+
+* `std::variant<T&>`
+
+--
+ * remplaçable par `std::reference_wrapper<T>`
+--
+
+* `std::variant<void>`
+
+--
+ * remplaçable par `std::monostate`
+--
+
+* `std::variant<>`
+
+--
+ * remplaçable par `std::monostate`
+
+---
+##std::monostate
+
+```
+void init(){
+  std::variant<int, std::string> a;
+  assert (std::holds_alternative<int>a);
+}
+```
+
+---
+## std::monostate
+
+```
+struct S1 {S1(int i);};
+struct S2 {S2(unsigned char c);};
+
+//  /!\ This doesn't compile
+std::variant<S1, S2> v;
+```
+
+---
+## std::monostate
+
+```
+struct S1 {S1(int i);};
+struct S2 {S2(unsigned char c);};
+
+std::variant<std::monostate, S1, S2> v;
+```
+
+---
+## std::variant<std::monostate, T>
+```
+struct Wall {
+  bool destructible;
+  unsigned char hp;
+};
+```
+
+Cardinalité 2 x 256 = 512
+
+{destructible = false, hp = 5} ?
+
+---
+## std::variant<std::monostate, T>
+
+```
+struct Wall {
+  std::variant<std::monostate, unsigned char> hp;
+};
+```
+
+Cardinalité 1 + 256 = 257
+
+---
+
+class: center, middle
+
+## std::optional
+
+---
+## std::optional
+
+```
+struct Wall {
+  std::optional<unsigned char> hp;
+}
+```
+
+---
+## std::optional
+
+```
+std::optional<int> a;
+```
+
+```
+std::variant<std::monostate, int> a;
+```
+
+---
+## std::optional
+
+```
+std::optional<int> a;
+```
+
+```
+std::variant<std::nullopt_t, int> a;
+```
+
+---
+## std::optional
+
+* Il n'y a pas toujours de réponse
+```
+std::optional<T> findObject(std::function<bool(T)> condition);
+```
+--
+* Certains inputs ne fonctionnent pas
+```
+std::optional<T> first(const std::vector<T>& list);
+```
+--
+* On veut que l'utilisateur pense aux cas d'échec
+```
+std::optional<Connection> connect();
+```
+---
+## nullptr
+
+Pourquoi ne pas utiliser T* et nullptr pour l'absence de valeur ?
+
+--
+
+* Sur la stack
+
+--
+
+* Propriété claire
+
+--
+
+* Intention claire
+
+---
+## Écrire dans un std::optional
+
+```
+int main() {
+  std::optional<int> a;
+  a = 15;
+  std::optional<int> b = a;
+  std::optional<Animation> c =
+    std::make_optional<Animation>("path/to/resource");
+}
+```
+
+---
+## Lire un std::optional
+
+```
+struct Wall {
+  std::optional<unsigned char> hp;
+};
+void wallPhysics(Wall w) {
+  if (w.hp) {
+    unsigned char r = *w.hp;
+    // ...
+  }
+  if (w.hp.has_value()) {
+    unsigned char r = w.hp.value();
+    // ...
+  }
+}
+```
+
+---
+## Lire un std::optional
+
+```
+void wallPhysics(Wall w) {
+  unsigned char r = w.hp.value_or(0);
+  //...
+}
+```
+
+---
+## Comparer des std::optional
+
+```
+void compare(const std::optional<int>& v) {
+   bool b1 = v < 5;
+   bool b2 = v == std::nullopt;
+   std::optional<int> v2 = 6;
+   bool b3 = v > v2;
+}
+```
+
+---
+## Les interdits
+
+`std::optional<T[]>`
+
+`std::optional<T&>`
+
+`std::optional<void>`
+
+`std::optional<>`
+
+---
+
+class: center, middle
+
+## std::any
+
+---
+
+## Éditeur de jeu
+
+```
+struct property
+{
+    property();
+    property(const std::string &, const ????? &);
+
+    std::string name;
+    ????? value;
+};
+```
+
+---
+
+## Éditeur de jeu
+
+```
+struct property
+{
+    property();
+    property(const std::string &, const std::any &);
+
+    std::string name;
+    std::any value;
+};
+```
+
+Merci à Bartek (www.bfilipek.com) pour cet exemple !
+
+---
+
+## Cardinalité
+
+--
+
+#+∞
+
+---
+
+## Lisibilité
+
+Perte de lisibilité ?
+
+--
+
+Intention est très claire :
+
+--
+
+"Ne pas ouvrir !"
+
+---
+
+## Alternative ?
+
+void* et static_cast<>() ?
+
+--
+
+Non
+
+--
+
+* Propriété floue
+
+--
+
+* Aucune sécurité
+
+--
+
+* Horrible à debugger
+
+---
+## Écrire dans std::any
+
+```
+void writeProperties() {
+    std::any empty;
+    std::any a = 5;
+    a = "something else";
+
+    // In place
+    std::any v1 {
+      std::in_place_type<Animation>, "path/to/resource"};
+    std::any v2 = std::make_any<Animation>("path/to/other");
+
+    // ...
+}
+```
+
+---
+## Lire un std::any
+
+```
+void readProperty(std::any anything) {
+  if (anything.has_value()) {
+    // This line might throw std::bad_any_cast
+    int v = std::any_cast<int>(anything);
+    // This line might return nullptr
+    int* v = std::any_cast<int>(&anything);
+  }
+}
+```
+
+---
+## Observer un std::any
+
+```
+void isAnInteger(std::any anything) {
+  std::type_info t = anything.type();
+  return t == type_id(int);
+}
+```
+
+---
+
+layout: false
+class: center, middle
+
+# Les types d'union en C++17
+# std::variant et ses amis
+
+.name[Fred Tingaud]
+.company[Murex]
+.twitter[@FredTingaudDev]
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+          ratio: '16:9',
+          highlightStyle: 'monokai',
+          highlightLanguage: 'C++',
+          highlightLines: true,
+          highlightSpans: true,
+          slideNumberFormat: (current, total) => `<div class="slide-number">${current}</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: ${current/total*100}%">
+          </div>
+        </div>
+      `
+        });
+    </script>
+  </body>
+</html>
