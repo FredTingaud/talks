@@ -27,10 +27,17 @@
          background-color: #373832 !important;
       }
 	  .small {
-	     font-size:65%;
+	     font-size:55%;
 	  }
 	  a { 
 		color: LightSkyBlue;
+	}
+	table { border-collapse:collapse }
+	tr { 
+	  border: hidden;
+	}
+	td {
+	  padding: 0.5em !important;
 	}
     .big {
       font-size:120%;
@@ -74,13 +81,16 @@
         width:60%
       }
       .img-full-width img {
+        position:absolute;
+        top: 0;
+		left: 0;
         width:100%;
       }
       .img-full-height img {
         height: 550px;
       }
       .img-half-height img {
-        height: 400px;
+        height: 450px;
       }
       .img-half-size img {
         width:40%;
@@ -177,39 +187,49 @@
 
 class: center, middle
 
-# This task could have been a script
-
-.name[Fred Tingaud]
-
-.company[SonarSource]
-
-.mastodon[@FredTingaudDev@hachyderm.io]
-
-???
-
-Does the remote controller work?
-
----
-
-class: center, middle
-
-# This task could have been a script
-
-.name[Fred Tingaud]
-
-.company[SonarSource]
-
-.mastodon[@FredTingaudDev@hachyderm.io]
-
-???
-
-The remote controller works!
+.img-full-width[![Title card](img/ACCU_TitleCard.png)]
 
 ---
 
 layout: true
 
 .center[.footnote[Fred Tingaud - ACCU 2024]]
+
+---
+
+## Automation
+
+.center[.img-half-height[![Automation stack 1](img/stack1.png)]]
+
+---
+
+## Automation
+
+.center[.img-half-height[![Automation stack 2](img/stack2.png)]]
+
+---
+
+## Automation
+
+.center[.img-half-height[![Automation stack 3](img/stack3.png)]]
+
+---
+
+## Automation
+
+.center[.img-half-height[![Automation stack 4](img/stack4.png)]]
+
+---
+
+## Automation
+
+.center[.img-half-height[![Automation stack 5](img/stack5.png)]]
+
+---
+
+## Automation
+
+.center[.img-half-height[![Automation stack 6](img/stack6.png)]]
 
 ---
 
@@ -253,6 +273,32 @@ class: center, middle
 
 ---
 
+## No manual error
+
+No typo
+
+No copy-paste error
+
+No missed line
+
+---
+
+## Re-run for free
+
+Is it really ""One-shot""?
+
+Are you sure of what you're doing?
+
+---
+
+## Reach moving targets
+
+The world keeps turning
+
+Scooping water out of a sinking boat
+
+---
+
 ## Understanding the process
 
 The big picture
@@ -269,13 +315,47 @@ Learning material
 
 ---
 
-## No manual error
+## Base for future automations
 
-No typo
+Build a "library"
 
-No copy-paste error
+Build experience
 
-No missed line
+---
+
+## Learn new tech
+
+The perfect sandbox
+
+* Limited scope
+
+* Limited risk
+
+* Limited liability
+
+➡️
+
+---
+
+## Learn new tech
+
+Better than toy project
+
+* Easier to schedule
+
+* Real-life case
+
+* Usable result
+
+---
+
+## Change behavior
+
+seldom done => not automated
+
+or
+
+seldom done <= not automated
 
 ---
 
@@ -287,7 +367,7 @@ Avoid repetitive motion injuries
 
 ---
 
-## Brain tickles
+## Fun
 
 Interesting problem
 
@@ -305,58 +385,6 @@ Colleagues are grateful
 
 ---
 
-## Learn new tech
-
-The perfect sandbox
-
-* Limited scope
-
-* Limited risk
-
-* Limited liability
-
----
-
-## Learn new tech
-
-
-
----
-
-## Change behavior
-
-seldom done => not automated
-
-or
-
-seldom done <= not automated
-
----
-
-## Base for future automations
-
-Build a "library"
-
-Build experience
-
----
-
-## Re-run for free
-
-Is it really ""One-shot""?
-
-Are you sure of what you're doing?
-
----
-
-## Reach moving targets
-
-The world keeps turning as you work
-
-Scooping a water leak
-
----
-
 class: center, middle
 
 ## The Costs
@@ -365,25 +393,11 @@ class: center, middle
 
 ## Bugs
 
-Failing at large scale
+Failing at scale
 
 Finding a regex misbehavior in a haystack
 
----
-
-## Opportunity cost
-
-Is it the best investment of your time?
-
-Pay now for future tasks
-
----
-
-## Mental/Energy Cost
-
-Slow brain days
-
-Friday afternoon
+Review by sampling
 
 ---
 
@@ -392,6 +406,8 @@ Friday afternoon
 Manual tasks are highly predictable
 
 Creating an automation not so much
+
+➡️
 
 ---
 
@@ -409,14 +425,6 @@ Almost there
 
 ---
 
-## Failure
-
-Can you afford the risk now?
-
-What's the backup plan?
-
----
-
 ## Rigidity
 
 Changes to the task
@@ -427,11 +435,21 @@ Temporary changes
 
 ---
 
-## Rigidify behaviors
+## Tooling fatigue
 
-Too costly to improve the process
+Don't drown people in tools
 
-Need an automation to change the automation
+The only useful tools are those you know about
+
+Choose what you automate
+
+---
+
+## Opportunity cost
+
+Is it the best investment of your time?
+
+Pay now for future tasks
 
 ---
 
@@ -443,19 +461,35 @@ Success as the worst case scenario
 
 ---
 
-## *The* automation person
+## Rigidify behaviors
 
-Never admit to being the best at something you don't want to be your job
+Too costly to improve
 
-Beware comparative advantages
+Pernicious
 
 ---
 
-## Tooling fatigue
+## Mental/Energy Cost
 
-Don't drown people in tools
+Slow brain days
 
-The only useful tools are those you know about
+Friday afternoon
+
+---
+
+## Failure
+
+Can you afford the risk now?
+
+What's the backup plan?
+
+---
+
+## *The* automation person
+
+Don't become the best at something you don't want to be your job
+
+Beware of comparative advantages
 
 ---
 
@@ -465,23 +499,96 @@ class: center, middle
 
 ---
 
-## Are you under pressure?
+.small[
+| Benefits                    | Costs                    |
+|-----------------------------|--------------------------|
+| No manual error             | Bugs                     |
+| Re-run for free             | Higher uncertainty       |
+| Reach moving targets        | Sunken Cost Falacy       |
+| Understanding the process   | Rigidity                 |
+| Sharable                    | Tooling fatigue          |
+| Base for future automations | Opportunity Cost         |
+| Learn new tech              | Maintenance              |
+| Change behavior             | Rigidify behaviors       |
+| Less repetition             | Mental/Energy Cost       |
+| Fun                         | Failure                  |
+| Moral boost                 | *The* automation person  |
+]
 
 ---
 
-## How well do you know how to solve the problem?
+## Are you under pressure?
+
+
+.center[.img-half-height[![Chart of automation depending on pressure](img/charts/stress_empty.png)]]
+
+---
+
+## Are you under pressure?
+
+
+.center[.img-half-height[![Chart of automation depending on pressure](img/charts/stress.png)]]
+
+---
+
+## Are you under pressure?
+
+
+.center[.img-half-height[![Chart of automation depending on pressure](img/charts/stress_more.png)]]
+
+---
+
+## Do you know how to solve the problem?
+
+.center[.img-half-height[![Chart of automation depending on knowledge](img/charts/knowledge_empty.png)]]
+
+---
+
+## Do you know how to solve the problem?
+
+.center[.img-half-height[![Chart of automation depending on knowledge](img/charts/knowledge_stress.png)]]
+
+---
+
+## Do you know how to solve the problem?
+
+.center[.img-half-height[![Chart of automation depending on knowledge](img/charts/knowledge.png)]]
 
 ---
 
 ## How stable is the task?
 
+.center[.img-half-height[![Chart of automation depending on stability](img/charts/stability_empty.png)]]
+
+---
+
+## How stable is the task?
+
+.center[.img-half-height[![Chart of automation depending on stability](img/charts/stability.png)]]
+
 ---
 
 ## How large vs repeated?
 
+.center[.img-half-height[![Large vs Repeated chart](img/charts/large-repeated_empty.png)]]
+
+---
+
+## How large vs repeated?
+
+.center[.img-half-height[![Large vs Repeated chart](img/charts/large-repeated.png)]]
+
 ---
 
 ## How many people repeat the task?
+
+.center[.img-half-height[![Chart on number of users](img/charts/users_empty.png)]]
+
+---
+
+## How many people repeat the task?
+
+.center[.img-half-height[![Chart on number of users](img/charts/users.png)]]
 
 ---
 
@@ -493,9 +600,25 @@ class: center, middle
 
 * Need to re-run
 
+No Law of large numbers
+
 ---
 
-## Possible approaches
+## Other parameters not mentioned
+
+--
+
+* Office politics
+
+--
+
+* Ethics
+
+---
+
+## Possible approach
+
+--
 
 Retro-plan to keep manual solution as backup
 
@@ -503,15 +626,15 @@ Try
 
 If it fails document why
 
+Fallback on manual
+
 ---
 
 ## Do you *want* to automate this task?
 
 Are you interested in the automation process?
 
-Are you OK with the automation becoming "a tool"?
-
-... with everything it entices
+Are you willing to maintain it for all users forever?
 
 ---
 
